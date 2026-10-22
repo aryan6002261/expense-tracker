@@ -31,9 +31,9 @@
 
         <div class="container">
 
-            <a class="navbar-brand fw-bold brand" href="#">
-                <i class="bi bi-wallet2"></i>
-                ExpenseAI
+            <a class="navbar-brand fw-bold brand" href="#dashboard">
+                <i class="bi bi-wallet2 text-primary"></i>
+                <span>ExpenseAI</span>
             </a>
 
             <button
@@ -50,7 +50,7 @@
 
             <div class="collapse navbar-collapse" id="navbarContent">
 
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0" id="mainNav">
 
                     <li class="nav-item">
                         <a class="nav-link active" href="#dashboard">
@@ -78,10 +78,57 @@
 
                 </ul>
 
-                <button class="btn btn-outline-primary">
-                    <i class="bi bi-person-circle"></i>
-                    Profile
-                </button>
+                <!-- Auth / Profile Control -->
+                <div id="navbarAuthContainer" class="d-flex align-items-center gap-2">
+
+                    <!-- Logged Out View -->
+                    <button class="btn btn-primary d-none" id="navSignInBtn" data-bs-toggle="modal" data-bs-target="#authModal">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                        <span>Sign In</span>
+                    </button>
+
+                    <!-- Logged In Dropdown View -->
+                    <div class="dropdown" id="userMenuDropdown">
+                        <button class="btn btn-outline-primary d-flex align-items-center gap-2 dropdown-toggle py-1 px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="userDropdownBtn">
+                            <div class="user-avatar" id="navUserAvatar">A</div>
+                            <span id="navUserName" class="fw-semibold">Aryan</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" style="min-width: 270px;">
+                            <li class="px-3 py-2 border-bottom mb-1">
+                                <p class="mb-0 fw-bold" id="dropdownUserName">Aryan Sharma</p>
+                                <small class="text-muted" id="dropdownUserEmail">aryan@gmail.com</small>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkUpiBtn">
+                                    <i class="bi bi-qr-code text-primary"></i>
+                                    <span>UPI Bank Link</span>
+                                    <span class="badge bg-success-subtle text-success ms-auto" id="navUpiBadge">Linked</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkGmailBtn">
+                                    <i class="bi bi-envelope-at text-danger"></i>
+                                    <span>Gmail Alerts</span>
+                                    <span class="badge bg-primary-subtle text-primary ms-auto" id="navGmailBadge">Weekly</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuProfileBtn">
+                                    <i class="bi bi-sliders text-secondary"></i>
+                                    <span>Account & Budgets</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item py-2 rounded text-danger d-flex align-items-center gap-2" href="#" id="menuSignOutBtn">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>Sign Out</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
 
             </div>
 
@@ -99,6 +146,34 @@
 
         <section id="dashboard">
 
+            <!-- Connected Integrations Bar -->
+            <div class="integrations-bar" id="integrationsBar">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
+                        <i class="bi bi-link-45deg"></i> Connected Services
+                    </span>
+                    <span class="text-muted small d-none d-md-inline">Live UPI statements & Gmail AI reports</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button class="integration-item" id="upiBarBtn" data-bs-toggle="modal" data-bs-target="#upiModal" title="Manage UPI Link & Sync">
+                        <i class="bi bi-qr-code text-primary"></i>
+                        <span id="upiBarText">UPI: aryan@okaxis</span>
+                        <span class="badge bg-success-subtle text-success" id="upiBarBadge">Active</span>
+                    </button>
+
+                    <button class="integration-item" id="gmailBarBtn" data-bs-toggle="modal" data-bs-target="#gmailModal" title="Manage Gmail Reminders & Alerts">
+                        <i class="bi bi-envelope-at text-danger"></i>
+                        <span id="gmailBarText">Gmail: Weekly Digest</span>
+                        <span class="badge bg-primary-subtle text-primary" id="gmailBarBadge">Active</span>
+                    </button>
+
+                    <button class="integration-item" id="previewEmailQuickBtn" title="Preview Simulated Email Digest">
+                        <i class="bi bi-eye-fill text-success"></i>
+                        <span>Preview Email Alert</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
 
                 <div>
@@ -106,7 +181,7 @@
                         Dashboard
                     </h1>
 
-                    <p class="dashboard-subtitle mb-0">
+                    <p class="dashboard-subtitle mb-0" id="welcomeSubtitle">
                         Here's your spending overview.
                     </p>
                 </div>
@@ -115,8 +190,9 @@
                     class="btn btn-primary mt-3 mt-md-0"
                     data-bs-toggle="modal"
                     data-bs-target="#addExpenseModal"
+                    id="dashboardAddExpenseBtn"
                 >
-                    <i class="bi bi-plus-lg"></i>
+                    <i class="bi bi-plus-lg me-1"></i>
                     Add Expense
                 </button>
 
@@ -142,8 +218,8 @@
                                         Total Spent
                                     </p>
 
-                                    <h2 class="stat-value mb-0">
-                                        ₹12,450
+                                    <h2 class="stat-value mb-0" id="totalSpentValue">
+                                        ₹0
                                     </h2>
                                 </div>
 
@@ -153,7 +229,7 @@
 
                             </div>
 
-                            <small class="text-muted">
+                            <small class="text-muted" id="totalSpentSub">
                                 This month
                             </small>
 
@@ -179,7 +255,7 @@
                                         Monthly Budget
                                     </p>
 
-                                    <h2 class="stat-value mb-0">
+                                    <h2 class="stat-value mb-0" id="monthlyBudgetValue">
                                         ₹20,000
                                     </h2>
                                 </div>
@@ -190,8 +266,8 @@
 
                             </div>
 
-                            <small class="text-muted">
-                                ₹7,550 remaining
+                            <small class="text-muted" id="budgetRemainingValue">
+                                ₹0 remaining
                             </small>
 
                         </div>
@@ -216,8 +292,8 @@
                                         Average Daily
                                     </p>
 
-                                    <h2 class="stat-value mb-0">
-                                        ₹415
+                                    <h2 class="stat-value mb-0" id="avgDailyValue">
+                                        ₹0
                                     </h2>
                                 </div>
 
@@ -227,7 +303,7 @@
 
                             </div>
 
-                            <small class="text-muted">
+                            <small class="text-muted" id="avgDailySub">
                                 This month
                             </small>
 
@@ -253,8 +329,8 @@
                                         Transactions
                                     </p>
 
-                                    <h2 class="stat-value mb-0">
-                                        42
+                                    <h2 class="stat-value mb-0" id="transactionsCountValue">
+                                        0
                                     </h2>
                                 </div>
 
@@ -264,7 +340,7 @@
 
                             </div>
 
-                            <small class="text-muted">
+                            <small class="text-muted" id="transactionsSub">
                                 This month
                             </small>
 
@@ -291,7 +367,7 @@
 
                             <div class="d-flex justify-content-between align-items-center">
 
-                                <h5 class="mb-0">
+                                <h5 class="mb-0 fw-bold">
                                     Spending Overview
                                 </h5>
 
@@ -316,22 +392,10 @@
 
                         </div>
 
-                        <div class="card-body px-4">
+                        <div class="card-body px-4 pb-4">
 
-                            <!-- Chart will be added later -->
-
-                            <div class="chart-placeholder">
-
-                                <div class="text-center">
-
-                                    <i class="bi bi-bar-chart-line fs-1"></i>
-
-                                    <p class="mt-2 mb-0">
-                                        Spending chart will appear here.
-                                    </p>
-
-                                </div>
-
+                            <div class="chart-container" id="chartContainer">
+                                <canvas id="spendingChart"></canvas>
                             </div>
 
                         </div>
@@ -349,98 +413,17 @@
 
                         <div class="card-header bg-white border-0 pt-4 px-4">
 
-                            <h5 class="mb-0">
-                                Categories
-                            </h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">
+                                    Categories
+                                </h5>
+                                <span class="badge bg-light text-muted fw-normal" id="categoriesMonthTag">This Month</span>
+                            </div>
 
                         </div>
 
-                        <div class="card-body px-4">
-
-                            <div class="category-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <div class="category-icon">
-                                        🍔
-                                    </div>
-
-                                    <span>Food</span>
-
-                                </div>
-
-                                <strong>₹4,250</strong>
-
-                            </div>
-
-
-                            <div class="category-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <div class="category-icon">
-                                        🚗
-                                    </div>
-
-                                    <span>Transport</span>
-
-                                </div>
-
-                                <strong>₹2,100</strong>
-
-                            </div>
-
-
-                            <div class="category-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <div class="category-icon">
-                                        🛍️
-                                    </div>
-
-                                    <span>Shopping</span>
-
-                                </div>
-
-                                <strong>₹3,500</strong>
-
-                            </div>
-
-
-                            <div class="category-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <div class="category-icon">
-                                        🎮
-                                    </div>
-
-                                    <span>Entertainment</span>
-
-                                </div>
-
-                                <strong>₹1,200</strong>
-
-                            </div>
-
-
-                            <div class="category-item d-flex justify-content-between align-items-center">
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <div class="category-icon">
-                                        📦
-                                    </div>
-
-                                    <span>Other</span>
-
-                                </div>
-
-                                <strong>₹1,400</strong>
-
-                            </div>
-
+                        <div class="card-body px-4 pt-2" id="categoryBreakdownList">
+                            <!-- Dynamically rendered categories -->
                         </div>
 
                     </div>
@@ -468,14 +451,35 @@
                     </p>
                 </div>
 
-                <button
-                    class="btn btn-primary mt-3 mt-md-0"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addExpenseModal"
-                >
-                    <i class="bi bi-plus-lg"></i>
-                    Add Expense
-                </button>
+                <div class="d-flex gap-2 mt-3 mt-md-0">
+                    <button
+                        class="btn btn-outline-primary"
+                        id="syncUpiTransactionsBtn"
+                        title="Simulate automatic sync of recent UPI transactions"
+                    >
+                        <i class="bi bi-arrow-repeat me-1"></i>
+                        Sync UPI
+                    </button>
+
+                    <button
+                        class="btn btn-outline-success"
+                        id="exportCsvBtn"
+                        title="Export expenses to CSV"
+                    >
+                        <i class="bi bi-download me-1"></i>
+                        Export CSV
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addExpenseModal"
+                        id="expensesSectionAddBtn"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Expense
+                    </button>
+                </div>
 
             </div>
 
@@ -486,9 +490,9 @@
 
                 <div class="card-body">
 
-                    <form id="expense-filter-form">
+                    <form id="expense-filter-form" onsubmit="event.preventDefault();">
 
-                        <div class="row g-3">
+                        <div class="row g-3 align-items-end">
 
                             <div class="col-md-5">
 
@@ -501,15 +505,15 @@
 
                                 <div class="input-group">
 
-                                    <span class="input-group-text">
-                                        <i class="bi bi-search"></i>
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-search text-muted"></i>
                                     </span>
 
                                     <input
                                         type="search"
                                         id="search-expenses"
                                         class="form-control"
-                                        placeholder="Search expenses..."
+                                        placeholder="Search by description, amount..."
                                     >
 
                                 </div>
@@ -560,7 +564,7 @@
                             </div>
 
 
-                            <div class="col-md-4">
+                            <div class="col-md-3">
 
                                 <label
                                     for="filter-date"
@@ -575,6 +579,17 @@
                                     class="form-control"
                                 >
 
+                            </div>
+
+                            <div class="col-md-1 d-grid">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary"
+                                    id="resetFiltersBtn"
+                                    title="Reset all filters"
+                                >
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
                             </div>
 
                         </div>
@@ -604,148 +619,23 @@
                                     <th>Category</th>
                                     <th>Payment</th>
                                     <th>Amount</th>
-                                    <th>Actions</th>
+                                    <th class="text-end pe-4">Actions</th>
                                 </tr>
 
                             </thead>
 
 
-                            <tbody>
-
-                                <tr>
-
-                                    <td>
-                                        22 Aug 2026
-                                    </td>
-
-                                    <td>
-                                        Lunch at Subway
-                                    </td>
-
-                                    <td>
-                                        <span class="badge category-badge">
-                                            Food
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        UPI
-                                    </td>
-
-                                    <td class="fw-semibold">
-                                        ₹350
-                                    </td>
-
-                                    <td>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary"
-                                            title="Edit"
-                                        >
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-danger"
-                                            title="Delete"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        21 Aug 2026
-                                    </td>
-
-                                    <td>
-                                        Uber to college
-                                    </td>
-
-                                    <td>
-                                        <span class="badge category-badge">
-                                            Transport
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        UPI
-                                    </td>
-
-                                    <td class="fw-semibold">
-                                        ₹220
-                                    </td>
-
-                                    <td>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-danger"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </td>
-
-                                </tr>
-
-
-                                <tr>
-
-                                    <td>
-                                        20 Aug 2026
-                                    </td>
-
-                                    <td>
-                                        Amazon Purchase
-                                    </td>
-
-                                    <td>
-                                        <span class="badge category-badge">
-                                            Shopping
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        Card
-                                    </td>
-
-                                    <td class="fw-semibold">
-                                        ₹1,200
-                                    </td>
-
-                                    <td>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-
-                                        <button
-                                            class="btn btn-sm btn-outline-danger"
-                                        >
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </td>
-
-                                </tr>
-
+                            <tbody id="expensesTableBody">
+                                <!-- Populated dynamically by JS -->
                             </tbody>
 
                         </table>
 
+                    </div>
+
+                    <div id="tableSummary" class="table-summary d-flex justify-content-between align-items-center">
+                        <span id="tableCountText">Showing 0 expenses</span>
+                        <span id="tableTotalText" class="fw-semibold">Total: ₹0</span>
                     </div>
 
                 </div>
@@ -759,161 +649,33 @@
 
         <section id="budget" class="mt-5 pt-4">
 
-            <div class="mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
 
-                <h2 class="section-title mb-1">
-                    Budget
-                </h2>
+                <div>
+                    <h2 class="section-title mb-1">
+                        Budget
+                    </h2>
 
-                <p class="text-muted">
-                    Track your monthly spending limits.
-                </p>
+                    <p class="text-muted mb-0">
+                        Track your monthly spending limits.
+                    </p>
+                </div>
+
+                <button
+                    class="btn btn-outline-primary btn-sm mt-3 mt-md-0"
+                    data-bs-toggle="modal"
+                    data-bs-target="#manageBudgetModal"
+                    id="manageBudgetBtn"
+                >
+                    <i class="bi bi-sliders me-1"></i>
+                    Manage Budgets
+                </button>
 
             </div>
 
 
-            <div class="row g-4">
-
-                <!-- Food -->
-
-                <div class="col-md-4">
-
-                    <div class="card dashboard-card">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between mb-2">
-
-                                <h5 class="mb-0">
-                                    Food
-                                </h5>
-
-                                <span class="text-muted">
-                                    77%
-                                </span>
-
-                            </div>
-
-                            <p class="text-muted">
-                                ₹3,850 / ₹5,000
-                            </p>
-
-                            <div
-                                class="progress"
-                                role="progressbar"
-                                aria-label="Food budget"
-                                aria-valuenow="77"
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                            >
-
-                                <div
-                                    class="progress-bar"
-                                    style="width: 77%"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Transport -->
-
-                <div class="col-md-4">
-
-                    <div class="card dashboard-card">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between mb-2">
-
-                                <h5 class="mb-0">
-                                    Transport
-                                </h5>
-
-                                <span class="text-muted">
-                                    60%
-                                </span>
-
-                            </div>
-
-                            <p class="text-muted">
-                                ₹1,800 / ₹3,000
-                            </p>
-
-                            <div
-                                class="progress"
-                                role="progressbar"
-                                aria-label="Transport budget"
-                                aria-valuenow="60"
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                            >
-
-                                <div
-                                    class="progress-bar"
-                                    style="width: 60%"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Shopping -->
-
-                <div class="col-md-4">
-
-                    <div class="card dashboard-card">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between mb-2">
-
-                                <h5 class="mb-0">
-                                    Shopping
-                                </h5>
-
-                                <span class="text-muted">
-                                    80%
-                                </span>
-
-                            </div>
-
-                            <p class="text-muted">
-                                ₹3,200 / ₹4,000
-                            </p>
-
-                            <div
-                                class="progress"
-                                role="progressbar"
-                                aria-label="Shopping budget"
-                                aria-valuenow="80"
-                                aria-valuemin="0"
-                                aria-valuemax="100"
-                            >
-
-                                <div
-                                    class="progress-bar"
-                                    style="width: 80%"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+            <div class="row g-4" id="budgetCardsContainer">
+                <!-- Dynamically populated by JS -->
             </div>
 
         </section>
@@ -923,15 +685,29 @@
 
         <section id="insights" class="mt-5 pt-4">
 
-            <div class="mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
 
-                <h2 class="section-title mb-1">
-                    AI Insights
-                </h2>
+                <div>
+                    <h2 class="section-title mb-1">
+                        AI Insights
+                    </h2>
 
-                <p class="text-muted">
-                    Smart insights about your spending.
-                </p>
+                    <p class="text-muted mb-0">
+                        Smart insights about your spending and personalized recommendations.
+                    </p>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 mt-md-0">
+                    <button class="btn btn-outline-danger btn-sm" id="sendEmailReportBtn" title="Send current insights to connected Gmail">
+                        <i class="bi bi-envelope-check me-1"></i>
+                        Dispatch to Gmail
+                    </button>
+
+                    <button class="btn btn-outline-primary btn-sm" id="refreshAiBtn">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        Refresh Insights
+                    </button>
+                </div>
 
             </div>
 
@@ -940,7 +716,7 @@
 
                 <div class="card-body p-4">
 
-                    <div class="d-flex align-items-start gap-3">
+                    <div class="d-flex align-items-start gap-3 mb-4">
 
                         <div class="ai-icon">
                             <i class="bi bi-stars"></i>
@@ -948,15 +724,67 @@
 
                         <div>
 
-                            <h4>
-                                Your AI assistant
+                            <h4 class="fw-bold mb-1">
+                                Your AI Assistant
                             </h4>
 
                             <p class="text-muted mb-0">
-                                AI-powered spending insights will appear
-                                here once the AI functionality is added.
+                                Real-time personalized financial analysis computed directly from your transactions.
                             </p>
 
+                        </div>
+
+                    </div>
+
+                    <!-- Dynamic AI Stat Insight Cards -->
+                    <div class="row g-3 mb-4" id="aiInsightsCards">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <!-- Interactive Assistant Section -->
+                    <div class="border-top pt-4">
+
+                        <p class="fw-semibold text-secondary mb-2">
+                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                            Quick Financial Analysis:
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-2 mb-3" id="aiPromptChips">
+                            <button type="button" class="ai-chip" data-prompt="save-more">
+                                💡 How can I save more this month?
+                            </button>
+                            <button type="button" class="ai-chip" data-prompt="top-expense">
+                                📊 Analyze my top spending category
+                            </button>
+                            <button type="button" class="ai-chip" data-prompt="budget-risk">
+                                ⚠️ Am I in danger of exceeding any budget?
+                            </button>
+                            <button type="button" class="ai-chip" data-prompt="projection">
+                                🔮 Forecast my month-end total spend
+                            </button>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <input
+                                type="text"
+                                id="aiQuestionInput"
+                                class="form-control"
+                                placeholder="Ask ExpenseAI anything (e.g. 'How much did I spend on Food?' or 'How is my budget?')..."
+                            >
+                            <button class="btn btn-primary px-4" type="button" id="askAiBtn">
+                                <i class="bi bi-send-fill me-1"></i>
+                                Ask AI
+                            </button>
+                        </div>
+
+                        <div id="aiResponseContainer" class="ai-response-box" style="display: none;">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
+                                    <i class="bi bi-robot me-1"></i> ExpenseAI Analysis
+                                </span>
+                                <small class="text-muted" id="aiResponseTime"></small>
+                            </div>
+                            <div id="aiResponseContent"></div>
                         </div>
 
                     </div>
@@ -970,7 +798,436 @@
     </main>
 
 
-    <!-- ==================== ADD EXPENSE MODAL ==================== -->
+    <!-- ==================== AUTHENTICATION MODAL (LOGIN & SIGNUP) ==================== -->
+
+    <div
+        class="modal fade"
+        id="authModal"
+        tabindex="-1"
+        aria-labelledby="authModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="authModalLabel">
+                        <i class="bi bi-wallet2 text-primary me-1"></i> Welcome to ExpenseAI
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body pt-3">
+                    <!-- Auth Nav Tabs -->
+                    <ul class="nav nav-tabs auth-nav-tabs mb-4" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="signin-tab" data-bs-toggle="tab" data-bs-target="#signin-tab-pane" type="button" role="tab" aria-controls="signin-tab-pane" aria-selected="true">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-tab-pane" type="button" role="tab" aria-controls="signup-tab-pane" aria-selected="false">
+                                <i class="bi bi-person-plus me-1"></i> Create Account
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Sign In Pane -->
+                        <div class="tab-pane fade show active" id="signin-tab-pane" role="tabpanel" aria-labelledby="signin-tab" tabindex="0">
+                            <form id="signInForm">
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
+                                        <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" value="aryan@gmail.com" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-key text-muted"></i></span>
+                                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" value="password123" required>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="loginRememberMe" checked>
+                                        <label class="form-check-label small text-muted" for="loginRememberMe">Remember me</label>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="quickDemoLoginBtn">
+                                        <i class="bi bi-lightning-charge-fill text-warning"></i> Demo Login
+                                    </button>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2 mb-2" id="signInSubmitBtn">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Account
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Sign Up Pane -->
+                        <div class="tab-pane fade" id="signup-tab-pane" role="tabpanel" aria-labelledby="signup-tab" tabindex="0">
+                            <form id="signUpForm">
+                                <div class="mb-3">
+                                    <label for="signupName" class="form-label">Full Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-person text-muted"></i></span>
+                                        <input type="text" id="signupName" class="form-control" placeholder="e.g. Aryan Sharma" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="signupEmail" class="form-label">Email Address (Gmail)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
+                                        <input type="email" id="signupEmail" class="form-control" placeholder="you@gmail.com" required>
+                                    </div>
+                                </div>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-sm-6">
+                                        <label for="signupPassword" class="form-label">Password</label>
+                                        <input type="password" id="signupPassword" class="form-control" placeholder="Min 6 chars" required minlength="6">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label for="signupConfirmPassword" class="form-label">Confirm</label>
+                                        <input type="password" id="signupConfirmPassword" class="form-control" placeholder="Re-type password" required minlength="6">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="signupBudget" class="form-label">Monthly Budget Goal</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white currency-prefix">₹</span>
+                                        <input type="number" id="signupBudget" class="form-control" placeholder="20000" value="20000" min="1000">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-2" id="signUpSubmitBtn">
+                                    <i class="bi bi-person-check me-1"></i> Create My Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== LINK UPI MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="upiModal"
+        tabindex="-1"
+        aria-labelledby="upiModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="upiModalLabel">
+                        <i class="bi bi-qr-code text-primary me-2"></i> UPI Integration & Bank Feed
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Connected State Virtual UPI Card -->
+                    <div id="upiConnectedView" class="mb-4">
+                        <div class="upi-card mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-success-subtle text-white border border-light-subtle px-2 py-1">
+                                    <i class="bi bi-patch-check-fill text-warning me-1"></i> Active UPI Feed
+                                </span>
+                                <span class="fw-bold tracking-wider" id="upiBankName">HDFC Bank (••4128)</span>
+                            </div>
+
+                            <div class="upi-chip"></div>
+
+                            <div class="mb-3">
+                                <small class="text-white-50 d-block text-uppercase" style="letter-spacing: 0.05em;">Virtual Payment Address (VPA)</small>
+                                <span class="fs-5 fw-bold font-monospace" id="upiVpaDisplay">aryan@okaxis</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-end pt-2 border-top border-white-50">
+                                <div>
+                                    <small class="text-white-50 d-block">Monthly UPI Outflow</small>
+                                    <strong class="fs-6" id="upiTotalOutflow">₹0</strong>
+                                </div>
+                                <span class="badge bg-light text-dark fw-semibold" id="upiAutoSyncBadge">Auto-Categorize: ON</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary flex-grow-1" id="syncUpiNowBtn">
+                                <i class="bi bi-arrow-repeat me-1"></i> Sync Recent UPI Transactions
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" id="unlinkUpiBtn" title="Unlink UPI ID">
+                                <i class="bi bi-link-45deg"></i> Unlink
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Setup / Edit Form -->
+                    <div id="upiSetupView">
+                        <div class="alert alert-info py-2 px-3 small mb-3">
+                            <i class="bi bi-info-circle me-1"></i> Link your Unified Payments Interface (UPI) to automatically fetch, verify, and categorize real-time transactions.
+                        </div>
+
+                        <form id="upiForm">
+                            <div class="mb-3">
+                                <label for="upiProviderSelect" class="form-label">Select UPI App / Provider</label>
+                                <select id="upiProviderSelect" class="form-select">
+                                    <option value="@okaxis">Google Pay (@okaxis)</option>
+                                    <option value="@okhdfcbank">Google Pay (@okhdfcbank)</option>
+                                    <option value="@ybl">PhonePe (@ybl)</option>
+                                    <option value="@ibl">PhonePe (@ibl)</option>
+                                    <option value="@paytm">Paytm (@paytm)</option>
+                                    <option value="@upi">BHIM (@upi)</option>
+                                    <option value="custom">Other / Custom VPA</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="upiIdInput" class="form-label">UPI ID (VPA)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-qr-code text-muted"></i></span>
+                                    <input type="text" id="upiIdInput" class="form-control" placeholder="username@bank" value="aryan@okaxis" required>
+                                </div>
+                                <div class="form-text">e.g., yourname@okaxis, yourname@ybl, 9876543210@paytm</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="upiBankInput" class="form-label">Associated Bank Account</label>
+                                <input type="text" id="upiBankInput" class="form-control" placeholder="e.g. HDFC Bank, SBI, ICICI" value="HDFC Bank (••4128)">
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="upiAutoSyncSwitch" checked>
+                                <label class="form-check-label" for="upiAutoSyncSwitch">Auto-import UPI reference IDs (UTR numbers) & merchants</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" id="saveUpiBtn">
+                                <i class="bi bi-shield-check me-1"></i> Verify & Link UPI Feed
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== GMAIL REMINDERS & ALERTS MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="gmailModal"
+        tabindex="-1"
+        aria-labelledby="gmailModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="gmailModalLabel">
+                        <i class="bi bi-envelope-at text-danger me-2"></i> Gmail Reminders & Alerts
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="alert alert-light border py-2 px-3 small mb-3 d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-bell-fill text-primary me-1"></i> Automated Financial Digest Service</span>
+                        <span class="badge bg-success-subtle text-success" id="gmailConnectionStatus">Connected</span>
+                    </div>
+
+                    <form id="gmailSettingsForm">
+                        <!-- Gmail Address -->
+                        <div class="mb-3">
+                            <label for="gmailEmailInput" class="form-label">Gmail Recipient Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-google text-danger"></i></span>
+                                <input type="email" id="gmailEmailInput" class="form-control" placeholder="your.name@gmail.com" value="aryan@gmail.com" required>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Frequency -->
+                        <div class="mb-3">
+                            <label for="gmailFrequencySelect" class="form-label fw-semibold">Digest & Reminder Frequency</label>
+                            <select id="gmailFrequencySelect" class="form-select">
+                                <option value="weekly" selected>Weekly Summary (Every Monday 9:00 AM)</option>
+                                <option value="monthly">Monthly Financial Report (1st of every month)</option>
+                                <option value="realtime">Real-Time (Instant alerts when spending nears budget)</option>
+                            </select>
+                        </div>
+
+                        <!-- Subscriptions / Triggers -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold mb-2">Automated Alert Triggers</label>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="alertBudgetWarning" checked>
+                                <label class="form-check-label" for="alertBudgetWarning">
+                                    <strong>⚠️ Budget Warnings:</strong> Alert when any category hits &gt;80% or exceeds budget limit
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="alertAiInsights" checked>
+                                <label class="form-check-label" for="alertAiInsights">
+                                    <strong>💡 Smart AI Insights:</strong> Weekly savings opportunities and spending velocity
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="alertWeeklyDigest" checked>
+                                <label class="form-check-label" for="alertWeeklyDigest">
+                                    <strong>📊 Weekly Spending Recap:</strong> Top expenses and week-over-week trends
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="alertMonthlyReport" checked>
+                                <label class="form-check-label" for="alertMonthlyReport">
+                                    <strong>🎯 Month-End Financial Scorecard:</strong> Comprehensive monthly statement
+                                </label>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-danger flex-grow-1" id="previewEmailModalBtn">
+                                <i class="bi bi-send-check me-1"></i> Send Test Reminder / Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary px-4" id="saveGmailSettingsBtn">
+                                Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== GMAIL EMAIL PREVIEW MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="emailPreviewModal"
+        tabindex="-1"
+        aria-labelledby="emailPreviewModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger p-2"><i class="bi bi-google"></i> Gmail</span>
+                        <h6 class="modal-title fw-bold mb-0" id="emailPreviewModalLabel">
+                            Inbox Preview: Automated Financial Digest
+                        </h6>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-0">
+                    <div class="email-preview-box">
+                        <!-- Email Header -->
+                        <div class="email-preview-header">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-bold mb-0" id="emailSubjectLine">
+                                    🚨 ExpenseAI: Budget Alert & Spending Overview for August
+                                </h5>
+                                <span class="badge bg-light text-muted fw-normal" id="emailTimestamp">Today, 9:00 AM</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 small text-muted">
+                                <span><strong>From:</strong> ExpenseAI Alerts &lt;alerts@expenseai.app&gt;</span>
+                                <span>&bull;</span>
+                                <span><strong>To:</strong> <span id="emailRecipientDisplay">aryan@gmail.com</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Email Body (Simulating HTML Email Template) -->
+                        <div class="email-preview-body">
+                            <div class="text-center pb-3 border-bottom mb-3">
+                                <h4 class="brand fw-bold mb-1">
+                                    <i class="bi bi-wallet2 text-primary"></i> ExpenseAI Financial Report
+                                </h4>
+                                <p class="text-muted small mb-0">Here is your automated spending intelligence update.</p>
+                            </div>
+
+                            <!-- Greeting -->
+                            <p class="mb-3">Hi <strong id="emailUserName">Aryan</strong>,</p>
+
+                            <!-- Month Snapshot Cards -->
+                            <div class="row g-2 mb-3 text-center">
+                                <div class="col-4">
+                                    <div class="p-2 border rounded bg-light">
+                                        <small class="text-muted d-block">Total Spent</small>
+                                        <strong class="fs-5 text-dark" id="emailTotalSpent">₹12,450</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 border rounded bg-light">
+                                        <small class="text-muted d-block">Monthly Budget</small>
+                                        <strong class="fs-5 text-dark" id="emailMonthlyBudget">₹20,000</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 border rounded bg-light">
+                                        <small class="text-muted d-block">Remaining</small>
+                                        <strong class="fs-5 text-success" id="emailRemainingBudget">₹7,550</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Warning Box -->
+                            <div class="alert alert-warning py-2 px-3 mb-3 small" id="emailWarningBox">
+                                <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+                                <span id="emailWarningText"><strong>Budget Notice:</strong> You have utilized 62% of your monthly budget. Watch out for Shopping & Food.</span>
+                            </div>
+
+                            <!-- Category Highlights -->
+                            <h6 class="fw-bold mb-2">Category Spending Breakdown:</h6>
+                            <div class="mb-3 small" id="emailCategoryList">
+                                <!-- Populated dynamically -->
+                            </div>
+
+                            <!-- AI Recommendation Tip -->
+                            <div class="p-3 rounded bg-primary-subtle text-primary-emphasis mb-3 small">
+                                <strong class="d-block mb-1"><i class="bi bi-lightbulb-fill text-warning"></i> AI Smart Savings Recommendation:</strong>
+                                <span id="emailAiTipText">Small UPI micro-transactions under ₹300 represent frequent impulse purchases. Setting a digital wallet buffer will save ~₹1,500/month.</span>
+                            </div>
+
+                            <!-- Footer note -->
+                            <p class="small text-muted mb-0">
+                                This automated digest was dispatched to <strong id="emailFooterAddress">aryan@gmail.com</strong> according to your ExpenseAI notification preferences.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close Preview</button>
+                    <button type="button" class="btn btn-success" id="confirmDispatchEmailBtn">
+                        <i class="bi bi-check2-circle me-1"></i> Dispatch Test Email Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== ADD / EDIT EXPENSE MODAL ==================== -->
 
     <div
         class="modal fade"
@@ -987,7 +1244,7 @@
                 <div class="modal-header">
 
                     <h5
-                        class="modal-title"
+                        class="modal-title fw-bold"
                         id="addExpenseModalLabel"
                     >
                         Add Expense
@@ -1007,6 +1264,9 @@
 
                     <form id="expense-form">
 
+                        <!-- Hidden ID for edit mode -->
+                        <input type="hidden" id="expense-id">
+
                         <!-- Amount -->
 
                         <div class="mb-3">
@@ -1015,12 +1275,12 @@
                                 for="amount"
                                 class="form-label"
                             >
-                                Amount
+                                Amount <span class="text-danger">*</span>
                             </label>
 
                             <div class="input-group">
 
-                                <span class="input-group-text">
+                                <span class="input-group-text currency-prefix" id="formCurrencyPrefix">
                                     ₹
                                 </span>
 
@@ -1029,8 +1289,8 @@
                                     id="amount"
                                     class="form-control"
                                     placeholder="Enter amount"
-                                    min="0"
-                                    step="0.01"
+                                    min="0.01"
+                                    step="any"
                                     required
                                 >
 
@@ -1047,7 +1307,7 @@
                                 for="description"
                                 class="form-label"
                             >
-                                Description
+                                Description <span class="text-danger">*</span>
                             </label>
 
                             <input
@@ -1069,12 +1329,13 @@
                                 for="category"
                                 class="form-label"
                             >
-                                Category
+                                Category <span class="text-danger">*</span>
                             </label>
 
                             <select
                                 id="category"
                                 class="form-select"
+                                required
                             >
 
                                 <option value="">
@@ -1082,23 +1343,23 @@
                                 </option>
 
                                 <option value="food">
-                                    Food
+                                    🍔 Food
                                 </option>
 
                                 <option value="transport">
-                                    Transport
+                                    🚗 Transport
                                 </option>
 
                                 <option value="shopping">
-                                    Shopping
+                                    🛍️ Shopping
                                 </option>
 
                                 <option value="entertainment">
-                                    Entertainment
+                                    🎮 Entertainment
                                 </option>
 
                                 <option value="other">
-                                    Other
+                                    📦 Other
                                 </option>
 
                             </select>
@@ -1114,7 +1375,7 @@
                                 for="expense-date"
                                 class="form-label"
                             >
-                                Date
+                                Date <span class="text-danger">*</span>
                             </label>
 
                             <input
@@ -1135,12 +1396,13 @@
                                 for="payment-method"
                                 class="form-label"
                             >
-                                Payment Method
+                                Payment Method <span class="text-danger">*</span>
                             </label>
 
                             <select
                                 id="payment-method"
                                 class="form-select"
+                                required
                             >
 
                                 <option value="">
@@ -1186,8 +1448,9 @@
                         type="submit"
                         form="expense-form"
                         class="btn btn-primary"
+                        id="saveExpenseSubmitBtn"
                     >
-                        <i class="bi bi-plus-lg"></i>
+                        <i class="bi bi-plus-lg me-1"></i>
                         Add Expense
                     </button>
 
@@ -1197,6 +1460,198 @@
 
         </div>
 
+    </div>
+
+
+    <!-- ==================== DELETE CONFIRMATION MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="deleteConfirmModal"
+        tabindex="-1"
+        aria-labelledby="deleteConfirmModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title text-danger fw-bold" id="deleteConfirmModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Delete Expense
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="mb-1">Are you sure you want to delete this expense?</p>
+                    <p class="text-muted fw-semibold mb-0" id="deleteExpenseDetails"></p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== MANAGE BUDGETS MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="manageBudgetModal"
+        tabindex="-1"
+        aria-labelledby="manageBudgetModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="manageBudgetModalLabel">
+                        <i class="bi bi-sliders me-1 text-primary"></i> Manage Monthly Budgets
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="budget-form">
+                        <div class="mb-3">
+                            <label for="budget-total" class="form-label fw-bold">Overall Monthly Budget</label>
+                            <div class="input-group">
+                                <span class="input-group-text currency-prefix">₹</span>
+                                <input type="number" id="budget-total" class="form-control" min="0" step="100" required>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+                        <p class="small text-muted mb-3">Set individual category budget caps:</p>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="budget-food" class="form-label">🍔 Food Budget</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text currency-prefix">₹</span>
+                                    <input type="number" id="budget-food" class="form-control" min="0" step="50">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="budget-transport" class="form-label">🚗 Transport Budget</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text currency-prefix">₹</span>
+                                    <input type="number" id="budget-transport" class="form-control" min="0" step="50">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="budget-shopping" class="form-label">🛍️ Shopping Budget</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text currency-prefix">₹</span>
+                                    <input type="number" id="budget-shopping" class="form-control" min="0" step="50">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="budget-entertainment" class="form-label">🎮 Entertainment Budget</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text currency-prefix">₹</span>
+                                    <input type="number" id="budget-entertainment" class="form-control" min="0" step="50">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12">
+                                <label for="budget-other" class="form-label">📦 Other / Misc Budget</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text currency-prefix">₹</span>
+                                    <input type="number" id="budget-other" class="form-control" min="0" step="50">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="budget-form" class="btn btn-primary" id="saveBudgetsBtn">Save Budgets</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== USER PROFILE & SETTINGS MODAL ==================== -->
+
+    <div
+        class="modal fade"
+        id="profileModal"
+        tabindex="-1"
+        aria-labelledby="profileModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="profileModalLabel">
+                        <i class="bi bi-person-circle me-1 text-primary"></i> User Profile & Settings
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profile-form">
+                        <div class="mb-3">
+                            <label for="userNameInput" class="form-label">Your Name</label>
+                            <input type="text" id="userNameInput" class="form-control" placeholder="Your name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="userEmailInput" class="form-label">Account Email</label>
+                            <input type="email" id="userEmailInput" class="form-control" placeholder="your@email.com" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="currencySelect" class="form-label">Currency Symbol</label>
+                            <select id="currencySelect" class="form-select">
+                                <option value="₹">₹ (Indian Rupee)</option>
+                                <option value="$">$ (US Dollar)</option>
+                                <option value="€">€ (Euro)</option>
+                                <option value="£">£ (British Pound)</option>
+                                <option value="¥">¥ (Japanese Yen)</option>
+                                <option value="A$">A$ (Australian Dollar)</option>
+                            </select>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-bold mb-3 text-secondary">Data Management</h6>
+                    <div class="d-flex flex-column gap-2">
+                        <button type="button" class="btn btn-outline-success text-start" id="profileExportCsvBtn">
+                            <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export All Transactions as CSV
+                        </button>
+                        <button type="button" class="btn btn-outline-primary text-start" id="resetDemoDataBtn">
+                            <i class="bi bi-arrow-repeat me-2"></i> Reset to Sample Demo Data
+                        </button>
+                        <button type="button" class="btn btn-outline-danger text-start" id="clearAllDataBtn">
+                            <i class="bi bi-trash3 me-2"></i> Clear All Expenses & Start Fresh
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="profile-form" class="btn btn-primary" id="saveProfileBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center text-bg-primary border-0 custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2" id="toastMessage">
+                    <i class="bi bi-check-circle-fill"></i> Action completed!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
     </div>
 
 
@@ -1220,8 +1675,13 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     ></script>
 
-    <!-- Your JavaScript - Week 2 -->
-    <!-- <script src="js/app.js"></script> -->
+    <!-- Chart.js for beautiful interactive analytics -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+    ></script>
+
+    <!-- Application JavaScript -->
+    <script src="js/app.js"></script>
 
 </body>
 
