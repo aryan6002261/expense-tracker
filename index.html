@@ -25,891 +25,1002 @@
 
 <body>
 
-    <!-- ==================== NAVBAR ==================== -->
-
-    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
-
-        <div class="container">
-
-            <a class="navbar-brand fw-bold brand" href="#dashboard">
-                <i class="bi bi-wallet2 text-primary"></i>
-                <span>ExpenseAI</span>
-            </a>
-
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarContent"
-                aria-controls="navbarContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarContent">
-
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0" id="mainNav">
-
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#dashboard">
-                            Dashboard
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#expenses">
-                            Expenses
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#budget">
-                            Budget
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#insights">
-                            AI Insights
-                        </a>
-                    </li>
-
-                </ul>
-
-                <!-- Auth / Profile Control -->
-                <div id="navbarAuthContainer" class="d-flex align-items-center gap-2">
-
-                    <!-- Logged Out View -->
-                    <button class="btn btn-primary d-none" id="navSignInBtn" data-bs-toggle="modal" data-bs-target="#authModal">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>
-                        <span>Sign In</span>
-                    </button>
-
-                    <!-- Logged In Dropdown View -->
-                    <div class="dropdown" id="userMenuDropdown">
-                        <button class="btn btn-outline-primary d-flex align-items-center gap-2 dropdown-toggle py-1 px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="userDropdownBtn">
-                            <div class="user-avatar" id="navUserAvatar">A</div>
-                            <span id="navUserName" class="fw-semibold">Aryan</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" style="min-width: 270px;">
-                            <li class="px-3 py-2 border-bottom mb-1">
-                                <p class="mb-0 fw-bold" id="dropdownUserName">Aryan Sharma</p>
-                                <small class="text-muted" id="dropdownUserEmail">aryan@gmail.com</small>
-                            </li>
-                            <li>
-                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkUpiBtn">
-                                    <i class="bi bi-qr-code text-primary"></i>
-                                    <span>UPI Bank Link</span>
-                                    <span class="badge bg-success-subtle text-success ms-auto" id="navUpiBadge">Linked</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkGmailBtn">
-                                    <i class="bi bi-envelope-at text-danger"></i>
-                                    <span>Gmail Alerts</span>
-                                    <span class="badge bg-primary-subtle text-primary ms-auto" id="navGmailBadge">Weekly</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuProfileBtn">
-                                    <i class="bi bi-sliders text-secondary"></i>
-                                    <span>Account & Budgets</span>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider my-1"></li>
-                            <li>
-                                <a class="dropdown-item py-2 rounded text-danger d-flex align-items-center gap-2" href="#" id="menuSignOutBtn">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    <span>Sign Out</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </nav>
-
-
-    <!-- ==================== MAIN ==================== -->
-
-    <main class="container py-5">
-
-
-        <!-- ==================== DASHBOARD ==================== -->
-
-        <section id="dashboard">
-
-            <!-- Connected Integrations Bar -->
-            <div class="integrations-bar" id="integrationsBar">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
-                        <i class="bi bi-link-45deg"></i> Connected Services
-                    </span>
-                    <span class="text-muted small d-none d-md-inline">Live UPI statements & Gmail AI reports</span>
-                </div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <button class="integration-item" id="upiBarBtn" data-bs-toggle="modal" data-bs-target="#upiModal" title="Manage UPI Link & Sync">
-                        <i class="bi bi-qr-code text-primary"></i>
-                        <span id="upiBarText">UPI: aryan@okaxis</span>
-                        <span class="badge bg-success-subtle text-success" id="upiBarBadge">Active</span>
-                    </button>
-
-                    <button class="integration-item" id="gmailBarBtn" data-bs-toggle="modal" data-bs-target="#gmailModal" title="Manage Gmail Reminders & Alerts">
-                        <i class="bi bi-envelope-at text-danger"></i>
-                        <span id="gmailBarText">Gmail: Weekly Digest</span>
-                        <span class="badge bg-primary-subtle text-primary" id="gmailBarBadge">Active</span>
-                    </button>
-
-                    <button class="integration-item" id="previewEmailQuickBtn" title="Preview Simulated Email Digest">
-                        <i class="bi bi-eye-fill text-success"></i>
-                        <span>Preview Email Alert</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-
-                <div>
-                    <h1 class="dashboard-title mb-1">
-                        Dashboard
-                    </h1>
-
-                    <p class="dashboard-subtitle mb-0" id="welcomeSubtitle">
-                        Here's your spending overview.
-                    </p>
-                </div>
-
-                <button
-                    class="btn btn-primary mt-3 mt-md-0"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addExpenseModal"
-                    id="dashboardAddExpenseBtn"
-                >
-                    <i class="bi bi-plus-lg me-1"></i>
-                    Add Expense
-                </button>
-
-            </div>
-
-
-            <!-- ==================== STAT CARDS ==================== -->
-
-            <div class="row g-4 mb-4">
-
-                <!-- Total Spent -->
-
-                <div class="col-12 col-sm-6 col-lg-3">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between align-items-start">
-
-                                <div>
-                                    <p class="stat-label">
-                                        Total Spent
-                                    </p>
-
-                                    <h2 class="stat-value mb-0" id="totalSpentValue">
-                                        ₹0
-                                    </h2>
-                                </div>
-
-                                <div class="stat-icon">
-                                    <i class="bi bi-cash-stack"></i>
-                                </div>
-
-                            </div>
-
-                            <small class="text-muted" id="totalSpentSub">
-                                This month
-                            </small>
-
+    <!-- ==================== AUTH GATEWAY / LOGIN WALL ==================== -->
+    <!-- Shown when not logged in. You cannot access anything without logging in or continuing as guest -->
+    <div id="authGatewayScreen" class="auth-gateway-wrapper">
+        <div class="auth-gateway-card">
+            <div class="row g-0">
+                <!-- Left Hero Pane -->
+                <div class="col-lg-5 auth-hero-pane">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <span class="fs-3"><i class="bi bi-wallet2 text-warning"></i></span>
+                            <h3 class="fw-bold mb-0 text-white">ExpenseAI</h3>
                         </div>
 
-                    </div>
-
-                </div>
-
-
-                <!-- Budget -->
-
-                <div class="col-12 col-sm-6 col-lg-3">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between align-items-start">
-
-                                <div>
-                                    <p class="stat-label">
-                                        Monthly Budget
-                                    </p>
-
-                                    <h2 class="stat-value mb-0" id="monthlyBudgetValue">
-                                        ₹20,000
-                                    </h2>
-                                </div>
-
-                                <div class="stat-icon">
-                                    <i class="bi bi-piggy-bank"></i>
-                                </div>
-
-                            </div>
-
-                            <small class="text-muted" id="budgetRemainingValue">
-                                ₹0 remaining
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Average Daily -->
-
-                <div class="col-12 col-sm-6 col-lg-3">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between align-items-start">
-
-                                <div>
-                                    <p class="stat-label">
-                                        Average Daily
-                                    </p>
-
-                                    <h2 class="stat-value mb-0" id="avgDailyValue">
-                                        ₹0
-                                    </h2>
-                                </div>
-
-                                <div class="stat-icon">
-                                    <i class="bi bi-graph-up"></i>
-                                </div>
-
-                            </div>
-
-                            <small class="text-muted" id="avgDailySub">
-                                This month
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Transactions -->
-
-                <div class="col-12 col-sm-6 col-lg-3">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-body">
-
-                            <div class="d-flex justify-content-between align-items-start">
-
-                                <div>
-                                    <p class="stat-label">
-                                        Transactions
-                                    </p>
-
-                                    <h2 class="stat-value mb-0" id="transactionsCountValue">
-                                        0
-                                    </h2>
-                                </div>
-
-                                <div class="stat-icon">
-                                    <i class="bi bi-receipt"></i>
-                                </div>
-
-                            </div>
-
-                            <small class="text-muted" id="transactionsSub">
-                                This month
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- ==================== CHART + CATEGORIES ==================== -->
-
-            <div class="row g-4">
-
-                <!-- Spending Chart -->
-
-                <div class="col-lg-8">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-header bg-white border-0 pt-4 px-4">
-
-                            <div class="d-flex justify-content-between align-items-center">
-
-                                <h5 class="mb-0 fw-bold">
-                                    Spending Overview
-                                </h5>
-
-                                <select
-                                    class="form-select form-select-sm chart-select"
-                                    id="time-period"
-                                >
-                                    <option value="week">
-                                        This Week
-                                    </option>
-
-                                    <option value="month" selected>
-                                        This Month
-                                    </option>
-
-                                    <option value="year">
-                                        This Year
-                                    </option>
-                                </select>
-
-                            </div>
-
-                        </div>
-
-                        <div class="card-body px-4 pb-4">
-
-                            <div class="chart-container" id="chartContainer">
-                                <canvas id="spendingChart"></canvas>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Categories -->
-
-                <div class="col-lg-4">
-
-                    <div class="card dashboard-card h-100">
-
-                        <div class="card-header bg-white border-0 pt-4 px-4">
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 fw-bold">
-                                    Categories
-                                </h5>
-                                <span class="badge bg-light text-muted fw-normal" id="categoriesMonthTag">This Month</span>
-                            </div>
-
-                        </div>
-
-                        <div class="card-body px-4 pt-2" id="categoryBreakdownList">
-                            <!-- Dynamically rendered categories -->
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ==================== EXPENSES ==================== -->
-
-        <section id="expenses" class="mt-5 pt-4">
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-
-                <div>
-                    <h2 class="section-title mb-1">
-                        Recent Expenses
-                    </h2>
-
-                    <p class="text-muted mb-0">
-                        Your latest transactions.
-                    </p>
-                </div>
-
-                <div class="d-flex gap-2 mt-3 mt-md-0">
-                    <button
-                        class="btn btn-outline-primary"
-                        id="syncUpiTransactionsBtn"
-                        title="Simulate automatic sync of recent UPI transactions"
-                    >
-                        <i class="bi bi-arrow-repeat me-1"></i>
-                        Sync UPI
-                    </button>
-
-                    <button
-                        class="btn btn-outline-success"
-                        id="exportCsvBtn"
-                        title="Export expenses to CSV"
-                    >
-                        <i class="bi bi-download me-1"></i>
-                        Export CSV
-                    </button>
-
-                    <button
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#addExpenseModal"
-                        id="expensesSectionAddBtn"
-                    >
-                        <i class="bi bi-plus-lg me-1"></i>
-                        Add Expense
-                    </button>
-                </div>
-
-            </div>
-
-
-            <!-- Filters -->
-
-            <div class="card dashboard-card mb-4">
-
-                <div class="card-body">
-
-                    <form id="expense-filter-form" onsubmit="event.preventDefault();">
-
-                        <div class="row g-3 align-items-end">
-
-                            <div class="col-md-5">
-
-                                <label
-                                    for="search-expenses"
-                                    class="form-label"
-                                >
-                                    Search
-                                </label>
-
-                                <div class="input-group">
-
-                                    <span class="input-group-text bg-white">
-                                        <i class="bi bi-search text-muted"></i>
-                                    </span>
-
-                                    <input
-                                        type="search"
-                                        id="search-expenses"
-                                        class="form-control"
-                                        placeholder="Search by description, amount..."
-                                    >
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="col-md-3">
-
-                                <label
-                                    for="filter-category"
-                                    class="form-label"
-                                >
-                                    Category
-                                </label>
-
-                                <select
-                                    id="filter-category"
-                                    class="form-select"
-                                >
-
-                                    <option value="all">
-                                        All Categories
-                                    </option>
-
-                                    <option value="food">
-                                        Food
-                                    </option>
-
-                                    <option value="transport">
-                                        Transport
-                                    </option>
-
-                                    <option value="shopping">
-                                        Shopping
-                                    </option>
-
-                                    <option value="entertainment">
-                                        Entertainment
-                                    </option>
-
-                                    <option value="other">
-                                        Other
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <div class="col-md-3">
-
-                                <label
-                                    for="filter-date"
-                                    class="form-label"
-                                >
-                                    Date
-                                </label>
-
-                                <input
-                                    type="date"
-                                    id="filter-date"
-                                    class="form-control"
-                                >
-
-                            </div>
-
-                            <div class="col-md-1 d-grid">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary"
-                                    id="resetFiltersBtn"
-                                    title="Reset all filters"
-                                >
-                                    <i class="bi bi-arrow-counterclockwise"></i>
-                                </button>
-                            </div>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-
-            <!-- Expense Table -->
-
-            <div class="card dashboard-card table-card">
-
-                <div class="card-body p-0">
-
-                    <div class="table-responsive">
-
-                        <table class="table table-hover mb-0">
-
-                            <thead class="table-light">
-
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Payment</th>
-                                    <th>Amount</th>
-                                    <th class="text-end pe-4">Actions</th>
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody id="expensesTableBody">
-                                <!-- Populated dynamically by JS -->
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div id="tableSummary" class="table-summary d-flex justify-content-between align-items-center">
-                        <span id="tableCountText">Showing 0 expenses</span>
-                        <span id="tableTotalText" class="fw-semibold">Total: ₹0</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ==================== BUDGET ==================== -->
-
-        <section id="budget" class="mt-5 pt-4">
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-
-                <div>
-                    <h2 class="section-title mb-1">
-                        Budget
-                    </h2>
-
-                    <p class="text-muted mb-0">
-                        Track your monthly spending limits.
-                    </p>
-                </div>
-
-                <button
-                    class="btn btn-outline-primary btn-sm mt-3 mt-md-0"
-                    data-bs-toggle="modal"
-                    data-bs-target="#manageBudgetModal"
-                    id="manageBudgetBtn"
-                >
-                    <i class="bi bi-sliders me-1"></i>
-                    Manage Budgets
-                </button>
-
-            </div>
-
-
-            <div class="row g-4" id="budgetCardsContainer">
-                <!-- Dynamically populated by JS -->
-            </div>
-
-        </section>
-
-
-        <!-- ==================== AI INSIGHTS ==================== -->
-
-        <section id="insights" class="mt-5 pt-4">
-
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-
-                <div>
-                    <h2 class="section-title mb-1">
-                        AI Insights
-                    </h2>
-
-                    <p class="text-muted mb-0">
-                        Smart insights about your spending and personalized recommendations.
-                    </p>
-                </div>
-
-                <div class="d-flex gap-2 mt-3 mt-md-0">
-                    <button class="btn btn-outline-danger btn-sm" id="sendEmailReportBtn" title="Send current insights to connected Gmail">
-                        <i class="bi bi-envelope-check me-1"></i>
-                        Dispatch to Gmail
-                    </button>
-
-                    <button class="btn btn-outline-primary btn-sm" id="refreshAiBtn">
-                        <i class="bi bi-arrow-clockwise me-1"></i>
-                        Refresh Insights
-                    </button>
-                </div>
-
-            </div>
-
-
-            <div class="card ai-card">
-
-                <div class="card-body p-4">
-
-                    <div class="d-flex align-items-start gap-3 mb-4">
-
-                        <div class="ai-icon">
-                            <i class="bi bi-stars"></i>
-                        </div>
-
-                        <div>
-
-                            <h4 class="fw-bold mb-1">
-                                Your AI Assistant
-                            </h4>
-
-                            <p class="text-muted mb-0">
-                                Real-time personalized financial analysis computed directly from your transactions.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Dynamic AI Stat Insight Cards -->
-                    <div class="row g-3 mb-4" id="aiInsightsCards">
-                        <!-- Populated dynamically -->
-                    </div>
-
-                    <!-- Interactive Assistant Section -->
-                    <div class="border-top pt-4">
-
-                        <p class="fw-semibold text-secondary mb-2">
-                            <i class="bi bi-chat-dots-fill text-primary me-1"></i>
-                            Quick Financial Analysis:
+                        <h4 class="fw-bold mb-3 text-white">
+                            Intelligent Expense Tracking & Real-Time Alerts
+                        </h4>
+
+                        <p class="text-white-50 mb-4 small">
+                            Take complete command of your spending. Connect real-time UPI statement feeds and receive automated weekly Gmail digests and budget warning alerts.
                         </p>
 
-                        <div class="d-flex flex-wrap gap-2 mb-3" id="aiPromptChips">
-                            <button type="button" class="ai-chip" data-prompt="save-more">
-                                💡 How can I save more this month?
-                            </button>
-                            <button type="button" class="ai-chip" data-prompt="top-expense">
-                                📊 Analyze my top spending category
-                            </button>
-                            <button type="button" class="ai-chip" data-prompt="budget-risk">
-                                ⚠️ Am I in danger of exceeding any budget?
-                            </button>
-                            <button type="button" class="ai-chip" data-prompt="projection">
-                                🔮 Forecast my month-end total spend
-                            </button>
-                        </div>
-
-                        <div class="input-group mb-3">
-                            <input
-                                type="text"
-                                id="aiQuestionInput"
-                                class="form-control"
-                                placeholder="Ask ExpenseAI anything (e.g. 'How much did I spend on Food?' or 'How is my budget?')..."
-                            >
-                            <button class="btn btn-primary px-4" type="button" id="askAiBtn">
-                                <i class="bi bi-send-fill me-1"></i>
-                                Ask AI
-                            </button>
-                        </div>
-
-                        <div id="aiResponseContainer" class="ai-response-box" style="display: none;">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
-                                    <i class="bi bi-robot me-1"></i> ExpenseAI Analysis
-                                </span>
-                                <small class="text-muted" id="aiResponseTime"></small>
+                        <div class="auth-feature-item">
+                            <div class="auth-feature-icon">
+                                <i class="bi bi-qr-code text-warning"></i>
                             </div>
-                            <div id="aiResponseContent"></div>
+                            <div>
+                                <h6 class="fw-semibold mb-0 text-white">Automated UPI Statement Feeds</h6>
+                                <small class="text-white-50">Sync verified UPI transactions with live UTR numbers.</small>
+                            </div>
                         </div>
 
+                        <div class="auth-feature-item">
+                            <div class="auth-feature-icon">
+                                <i class="bi bi-envelope-at text-danger"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-0 text-white">Automated Gmail Alerts</h6>
+                                <small class="text-white-50">Weekly spending digests & real-time overspending alerts.</small>
+                            </div>
+                        </div>
+
+                        <div class="auth-feature-item mb-0">
+                            <div class="auth-feature-icon">
+                                <i class="bi bi-stars text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-semibold mb-0 text-white">AI-Powered Spending Advisor</h6>
+                                <small class="text-white-50">Smart velocity predictions and personalized savings tips.</small>
+                            </div>
+                        </div>
                     </div>
 
+                    <div class="pt-4 mt-4 border-top border-white-50 small text-white-50">
+                        &copy; 2026 ExpenseAI. Safe, private, and local.
+                    </div>
                 </div>
 
-            </div>
+                <!-- Right Form Pane -->
+                <div class="col-lg-7 p-4 p-md-5">
+                    <div class="mb-4">
+                        <h4 class="fw-bold mb-1 text-dark">Welcome to ExpenseAI</h4>
+                        <p class="text-muted small mb-0">Sign in with your Gmail to unlock UPI feeds and automated alerts, or continue as guest.</p>
+                    </div>
 
-        </section>
+                    <!-- 1-Click Fast Google / Gmail Login Button -->
+                    <button type="button" class="btn btn-google w-100 mb-3" id="googleFastLoginBtn">
+                        <i class="bi bi-google text-danger fs-5"></i>
+                        <span>Continue with Gmail (Google)</span>
+                    </button>
 
-    </main>
+                    <div class="d-flex align-items-center my-3">
+                        <hr class="flex-grow-1 my-0">
+                        <span class="px-3 text-muted small text-uppercase">or sign in with email</span>
+                        <hr class="flex-grow-1 my-0">
+                    </div>
 
-
-    <!-- ==================== AUTHENTICATION MODAL (LOGIN & SIGNUP) ==================== -->
-
-    <div
-        class="modal fade"
-        id="authModal"
-        tabindex="-1"
-        aria-labelledby="authModalLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="authModalLabel">
-                        <i class="bi bi-wallet2 text-primary me-1"></i> Welcome to ExpenseAI
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body pt-3">
-                    <!-- Auth Nav Tabs -->
-                    <ul class="nav nav-tabs auth-nav-tabs mb-4" id="authTabs" role="tablist">
+                    <!-- Auth Tabs -->
+                    <ul class="nav nav-tabs auth-nav-tabs mb-3" id="gatewayTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="signin-tab" data-bs-toggle="tab" data-bs-target="#signin-tab-pane" type="button" role="tab" aria-controls="signin-tab-pane" aria-selected="true">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                            <button class="nav-link active" id="gt-signin-tab" data-bs-toggle="tab" data-bs-target="#gt-signin-pane" type="button" role="tab">
+                                Sign In with Gmail
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="signup-tab" data-bs-toggle="tab" data-bs-target="#signup-tab-pane" type="button" role="tab" aria-controls="signup-tab-pane" aria-selected="false">
-                                <i class="bi bi-person-plus me-1"></i> Create Account
+                            <button class="nav-link" id="gt-signup-tab" data-bs-toggle="tab" data-bs-target="#gt-signup-pane" type="button" role="tab">
+                                Create Gmail Account
                             </button>
                         </li>
                     </ul>
 
-                    <div class="tab-content" id="authTabsContent">
-                        <!-- Sign In Pane -->
-                        <div class="tab-pane fade show active" id="signin-tab-pane" role="tabpanel" aria-labelledby="signin-tab" tabindex="0">
-                            <form id="signInForm">
+                    <div class="tab-content mb-4" id="gatewayTabsContent">
+                        <!-- Sign In Tab -->
+                        <div class="tab-pane fade show active" id="gt-signin-pane" role="tabpanel">
+                            <form id="gatewaySignInForm">
                                 <div class="mb-3">
-                                    <label for="loginEmail" class="form-label">Email Address</label>
+                                    <label for="gtLoginEmail" class="form-label">Gmail Address</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
-                                        <input type="email" id="loginEmail" class="form-control" placeholder="name@example.com" value="aryan@gmail.com" required>
+                                        <input type="email" id="gtLoginEmail" class="form-control" placeholder="your.name@gmail.com" required>
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <label for="gtLoginPassword" class="form-label">Password</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white"><i class="bi bi-key text-muted"></i></span>
-                                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" value="password123" required>
+                                        <input type="password" id="gtLoginPassword" class="form-control" placeholder="••••••••" required>
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="loginRememberMe" checked>
-                                        <label class="form-check-label small text-muted" for="loginRememberMe">Remember me</label>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="quickDemoLoginBtn">
-                                        <i class="bi bi-lightning-charge-fill text-warning"></i> Demo Login
-                                    </button>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 py-2 mb-2" id="signInSubmitBtn">
+                                <button type="submit" class="btn btn-primary w-100 py-2">
                                     <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Account
                                 </button>
                             </form>
                         </div>
 
-                        <!-- Sign Up Pane -->
-                        <div class="tab-pane fade" id="signup-tab-pane" role="tabpanel" aria-labelledby="signup-tab" tabindex="0">
-                            <form id="signUpForm">
+                        <!-- Sign Up Tab -->
+                        <div class="tab-pane fade" id="gt-signup-pane" role="tabpanel">
+                            <form id="gatewaySignUpForm">
                                 <div class="mb-3">
-                                    <label for="signupName" class="form-label">Full Name</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white"><i class="bi bi-person text-muted"></i></span>
-                                        <input type="text" id="signupName" class="form-control" placeholder="e.g. Aryan Sharma" required>
-                                    </div>
+                                    <label for="gtSignupName" class="form-label">Your Name</label>
+                                    <input type="text" id="gtSignupName" class="form-control" placeholder="e.g. Aryan Sharma" required>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="signupEmail" class="form-label">Email Address (Gmail)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
-                                        <input type="email" id="signupEmail" class="form-control" placeholder="you@gmail.com" required>
-                                    </div>
+                                    <label for="gtSignupEmail" class="form-label">Gmail Address</label>
+                                    <input type="email" id="gtSignupEmail" class="form-control" placeholder="your.name@gmail.com" required>
+                                    <div class="form-text">Must be a Gmail address to enable automated digest alerts.</div>
                                 </div>
 
                                 <div class="row g-2 mb-3">
                                     <div class="col-sm-6">
-                                        <label for="signupPassword" class="form-label">Password</label>
-                                        <input type="password" id="signupPassword" class="form-control" placeholder="Min 6 chars" required minlength="6">
+                                        <label for="gtSignupPassword" class="form-label">Password</label>
+                                        <input type="password" id="gtSignupPassword" class="form-control" placeholder="Min 6 chars" required minlength="6">
                                     </div>
                                     <div class="col-sm-6">
-                                        <label for="signupConfirmPassword" class="form-label">Confirm</label>
-                                        <input type="password" id="signupConfirmPassword" class="form-control" placeholder="Re-type password" required minlength="6">
+                                        <label for="gtSignupConfirm" class="form-label">Confirm Password</label>
+                                        <input type="password" id="gtSignupConfirm" class="form-control" placeholder="Re-type password" required minlength="6">
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="signupBudget" class="form-label">Monthly Budget Goal</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white currency-prefix">₹</span>
-                                        <input type="number" id="signupBudget" class="form-control" placeholder="20000" value="20000" min="1000">
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100 py-2" id="signUpSubmitBtn">
-                                    <i class="bi bi-person-check me-1"></i> Create My Account
+                                <button type="submit" class="btn btn-primary w-100 py-2">
+                                    <i class="bi bi-person-check me-1"></i> Register Gmail Account
                                 </button>
                             </form>
                         </div>
+                    </div>
+
+                    <div class="d-flex align-items-center my-3">
+                        <hr class="flex-grow-1 my-0">
+                        <span class="px-3 text-muted small text-uppercase">or try without account</span>
+                        <hr class="flex-grow-1 my-0">
+                    </div>
+
+                    <!-- Guest Mode Button -->
+                    <button type="button" class="btn btn-guest w-100 py-2" id="continueAsGuestBtn">
+                        <i class="bi bi-person-bounding-box me-1"></i>
+                        <span>Continue as Guest</span>
+                        <span class="guest-badge ms-auto">Manual Tracking Only</span>
+                    </button>
+                    <div class="text-center mt-2">
+                        <small class="text-muted" style="font-size: 0.775rem;">
+                            <i class="bi bi-info-circle me-1"></i> Guest mode lets you log expenses manually. UPI sync and Gmail alerts require logging in with Gmail.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== MAIN APPLICATION CONTENT ==================== -->
+    <!-- Hidden until user is authenticated (logged in with Gmail or continuing as guest) -->
+    <div id="appContent" class="d-none">
+
+        <!-- ==================== NAVBAR ==================== -->
+
+        <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+
+            <div class="container">
+
+                <a class="navbar-brand fw-bold brand" href="#dashboard">
+                    <i class="bi bi-wallet2 text-primary"></i>
+                    <span>ExpenseAI</span>
+                </a>
+
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarContent"
+                    aria-controls="navbarContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0" id="mainNav">
+
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#expenses">
+                                Expenses
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#budget">
+                                Budget
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#insights">
+                                AI Insights
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <!-- Auth / Profile Control in Navbar -->
+                    <div id="navbarAuthContainer" class="d-flex align-items-center gap-2">
+
+                        <div class="dropdown" id="userMenuDropdown">
+                            <button class="btn btn-outline-primary d-flex align-items-center gap-2 dropdown-toggle py-1 px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="userDropdownBtn">
+                                <div class="user-avatar" id="navUserAvatar">A</div>
+                                <span id="navUserName" class="fw-semibold">Aryan</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" style="min-width: 275px;">
+                                <li class="px-3 py-2 border-bottom mb-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <p class="mb-0 fw-bold" id="dropdownUserName">Aryan Sharma</p>
+                                        <span class="badge bg-primary-subtle text-primary" id="dropdownUserRole">Gmail</span>
+                                    </div>
+                                    <small class="text-muted" id="dropdownUserEmail">aryan@gmail.com</small>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkUpiBtn">
+                                        <i class="bi bi-qr-code text-primary"></i>
+                                        <span>UPI Bank Feed</span>
+                                        <span class="badge bg-success-subtle text-success ms-auto" id="navUpiBadge">Linked</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuLinkGmailBtn">
+                                        <i class="bi bi-envelope-at text-danger"></i>
+                                        <span>Gmail Reminders</span>
+                                        <span class="badge bg-primary-subtle text-primary ms-auto" id="navGmailBadge">Weekly</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 rounded d-flex align-items-center gap-2" href="#" id="menuProfileBtn">
+                                        <i class="bi bi-sliders text-secondary"></i>
+                                        <span>Account & Budgets</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <a class="dropdown-item py-2 rounded text-danger d-flex align-items-center gap-2" href="#" id="menuSignOutBtn">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Sign Out / Switch</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+
+        <!-- ==================== MAIN TRACKER ==================== -->
+
+        <main class="container py-5">
+
+
+            <!-- ==================== DASHBOARD ==================== -->
+
+            <section id="dashboard">
+
+                <!-- Connected Integrations Bar -->
+                <div class="integrations-bar" id="integrationsBar">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
+                            <i class="bi bi-link-45deg"></i> Connected Services
+                        </span>
+                        <span class="text-muted small d-none d-md-inline">Live UPI statements & Gmail AI reports</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <button class="integration-item" id="upiBarBtn" title="Manage UPI Link & Sync">
+                            <i class="bi bi-qr-code text-primary"></i>
+                            <span id="upiBarText">UPI: Not Linked</span>
+                            <span class="badge bg-secondary-subtle text-secondary" id="upiBarBadge">Setup</span>
+                        </button>
+
+                        <button class="integration-item" id="gmailBarBtn" title="Manage Gmail Reminders & Alerts">
+                            <i class="bi bi-envelope-at text-danger"></i>
+                            <span id="gmailBarText">Gmail: Inactive</span>
+                            <span class="badge bg-secondary-subtle text-secondary" id="gmailBarBadge">Configure</span>
+                        </button>
+
+                        <button class="integration-item" id="previewEmailQuickBtn" title="Preview Simulated Email Digest">
+                            <i class="bi bi-eye-fill text-success"></i>
+                            <span>Preview Email Alert</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+                    <div>
+                        <h1 class="dashboard-title mb-1">
+                            Dashboard
+                        </h1>
+
+                        <p class="dashboard-subtitle mb-0" id="welcomeSubtitle">
+                            Here's your spending overview.
+                        </p>
+                    </div>
+
+                    <button
+                        class="btn btn-primary mt-3 mt-md-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addExpenseModal"
+                        id="dashboardAddExpenseBtn"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add Expense
+                    </button>
+
+                </div>
+
+
+                <!-- ==================== STAT CARDS ==================== -->
+
+                <div class="row g-4 mb-4">
+
+                    <!-- Total Spent -->
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+                                        <p class="stat-label">
+                                            Total Spent
+                                        </p>
+
+                                        <h2 class="stat-value mb-0" id="totalSpentValue">
+                                            ₹0
+                                        </h2>
+                                    </div>
+
+                                    <div class="stat-icon">
+                                        <i class="bi bi-cash-stack"></i>
+                                    </div>
+
+                                </div>
+
+                                <small class="text-muted" id="totalSpentSub">
+                                    This month
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Budget -->
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+                                        <p class="stat-label">
+                                            Monthly Budget
+                                        </p>
+
+                                        <h2 class="stat-value mb-0" id="monthlyBudgetValue">
+                                            ₹20,000
+                                        </h2>
+                                    </div>
+
+                                    <div class="stat-icon">
+                                        <i class="bi bi-piggy-bank"></i>
+                                    </div>
+
+                                </div>
+
+                                <small class="text-muted" id="budgetRemainingValue">
+                                    ₹0 remaining
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Average Daily -->
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+                                        <p class="stat-label">
+                                            Average Daily
+                                        </p>
+
+                                        <h2 class="stat-value mb-0" id="avgDailyValue">
+                                            ₹0
+                                        </h2>
+                                    </div>
+
+                                    <div class="stat-icon">
+                                        <i class="bi bi-graph-up"></i>
+                                    </div>
+
+                                </div>
+
+                                <small class="text-muted" id="avgDailySub">
+                                    This month
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Transactions -->
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+                                        <p class="stat-label">
+                                            Transactions
+                                        </p>
+
+                                        <h2 class="stat-value mb-0" id="transactionsCountValue">
+                                            0
+                                        </h2>
+                                    </div>
+
+                                    <div class="stat-icon">
+                                        <i class="bi bi-receipt"></i>
+                                    </div>
+
+                                </div>
+
+                                <small class="text-muted" id="transactionsSub">
+                                    This month
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================== CHART + CATEGORIES ==================== -->
+
+                <div class="row g-4">
+
+                    <!-- Spending Chart -->
+
+                    <div class="col-lg-8">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+
+                                    <h5 class="mb-0 fw-bold">
+                                        Spending Overview
+                                    </h5>
+
+                                    <select
+                                        class="form-select form-select-sm chart-select"
+                                        id="time-period"
+                                    >
+                                        <option value="week">
+                                            This Week
+                                        </option>
+
+                                        <option value="month" selected>
+                                            This Month
+                                        </option>
+
+                                        <option value="year">
+                                            This Year
+                                        </option>
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                            <div class="card-body px-4 pb-4">
+
+                                <div class="chart-container" id="chartContainer">
+                                    <canvas id="spendingChart"></canvas>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Categories -->
+
+                    <div class="col-lg-4">
+
+                        <div class="card dashboard-card h-100">
+
+                            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0 fw-bold">
+                                        Categories
+                                    </h5>
+                                    <span class="badge bg-light text-muted fw-normal" id="categoriesMonthTag">This Month</span>
+                                </div>
+
+                            </div>
+
+                            <div class="card-body px-4 pt-2" id="categoryBreakdownList">
+                                <!-- Dynamically rendered categories -->
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================== EXPENSES ==================== -->
+
+            <section id="expenses" class="mt-5 pt-4">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+                    <div>
+                        <h2 class="section-title mb-1">
+                            Recent Expenses
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Your latest transactions.
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3 mt-md-0">
+                        <button
+                            class="btn btn-outline-primary"
+                            id="syncUpiTransactionsBtn"
+                            title="Simulate automatic sync of recent UPI transactions"
+                        >
+                            <i class="bi bi-arrow-repeat me-1"></i>
+                            Sync UPI
+                        </button>
+
+                        <button
+                            class="btn btn-outline-success"
+                            id="exportCsvBtn"
+                            title="Export expenses to CSV"
+                        >
+                            <i class="bi bi-download me-1"></i>
+                            Export CSV
+                        </button>
+
+                        <button
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addExpenseModal"
+                            id="expensesSectionAddBtn"
+                        >
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Add Expense
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <!-- Filters -->
+
+                <div class="card dashboard-card mb-4">
+
+                    <div class="card-body">
+
+                        <form id="expense-filter-form" onsubmit="event.preventDefault();">
+
+                            <div class="row g-3 align-items-end">
+
+                                <div class="col-md-5">
+
+                                    <label
+                                        for="search-expenses"
+                                        class="form-label"
+                                    >
+                                        Search
+                                    </label>
+
+                                    <div class="input-group">
+
+                                        <span class="input-group-text bg-white">
+                                            <i class="bi bi-search text-muted"></i>
+                                        </span>
+
+                                        <input
+                                            type="search"
+                                            id="search-expenses"
+                                            class="form-control"
+                                            placeholder="Search by description, amount..."
+                                        >
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label
+                                        for="filter-category"
+                                        class="form-label"
+                                    >
+                                        Category
+                                    </label>
+
+                                    <select
+                                        id="filter-category"
+                                        class="form-select"
+                                    >
+
+                                        <option value="all">
+                                            All Categories
+                                        </option>
+
+                                        <option value="food">
+                                            Food
+                                        </option>
+
+                                        <option value="transport">
+                                            Transport
+                                        </option>
+
+                                        <option value="shopping">
+                                            Shopping
+                                        </option>
+
+                                        <option value="entertainment">
+                                            Entertainment
+                                        </option>
+
+                                        <option value="other">
+                                            Other
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label
+                                        for="filter-date"
+                                        class="form-label"
+                                    >
+                                        Date
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="filter-date"
+                                        class="form-control"
+                                    >
+
+                                </div>
+
+                                <div class="col-md-1 d-grid">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="resetFiltersBtn"
+                                        title="Reset all filters"
+                                    >
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Expense Table -->
+
+                <div class="card dashboard-card table-card">
+
+                    <div class="card-body p-0">
+
+                        <div class="table-responsive">
+
+                            <table class="table table-hover mb-0">
+
+                                <thead class="table-light">
+
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Payment</th>
+                                        <th>Amount</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="expensesTableBody">
+                                    <!-- Populated dynamically by JS -->
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <div id="tableSummary" class="table-summary d-flex justify-content-between align-items-center">
+                            <span id="tableCountText">Showing 0 expenses</span>
+                            <span id="tableTotalText" class="fw-semibold">Total: ₹0</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================== BUDGET ==================== -->
+
+            <section id="budget" class="mt-5 pt-4">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+                    <div>
+                        <h2 class="section-title mb-1">
+                            Budget
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Track your monthly spending limits.
+                        </p>
+                    </div>
+
+                    <button
+                        class="btn btn-outline-primary btn-sm mt-3 mt-md-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#manageBudgetModal"
+                        id="manageBudgetBtn"
+                    >
+                        <i class="bi bi-sliders me-1"></i>
+                        Manage Budgets
+                    </button>
+
+                </div>
+
+
+                <div class="row g-4" id="budgetCardsContainer">
+                    <!-- Dynamically populated by JS -->
+                </div>
+
+            </section>
+
+
+            <!-- ==================== AI INSIGHTS ==================== -->
+
+            <section id="insights" class="mt-5 pt-4">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+                    <div>
+                        <h2 class="section-title mb-1">
+                            AI Insights
+                        </h2>
+
+                        <p class="text-muted mb-0">
+                            Smart insights about your spending and personalized recommendations.
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3 mt-md-0">
+                        <button class="btn btn-outline-danger btn-sm" id="sendEmailReportBtn" title="Send current insights to connected Gmail">
+                            <i class="bi bi-envelope-check me-1"></i>
+                            Dispatch to Gmail
+                        </button>
+
+                        <button class="btn btn-outline-primary btn-sm" id="refreshAiBtn">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Refresh Insights
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <div class="card ai-card">
+
+                    <div class="card-body p-4">
+
+                        <div class="d-flex align-items-start gap-3 mb-4">
+
+                            <div class="ai-icon">
+                                <i class="bi bi-stars"></i>
+                            </div>
+
+                            <div>
+
+                                <h4 class="fw-bold mb-1">
+                                    Your AI Assistant
+                                </h4>
+
+                                <p class="text-muted mb-0">
+                                    Real-time personalized financial analysis computed directly from your transactions.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Dynamic AI Stat Insight Cards -->
+                        <div class="row g-3 mb-4" id="aiInsightsCards">
+                            <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- Interactive Assistant Section -->
+                        <div class="border-top pt-4">
+
+                            <p class="fw-semibold text-secondary mb-2">
+                                <i class="bi bi-chat-dots-fill text-primary me-1"></i>
+                                Quick Financial Analysis:
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-2 mb-3" id="aiPromptChips">
+                                <button type="button" class="ai-chip" data-prompt="save-more">
+                                    💡 How can I save more this month?
+                                </button>
+                                <button type="button" class="ai-chip" data-prompt="top-expense">
+                                    📊 Analyze my top spending category
+                                </button>
+                                <button type="button" class="ai-chip" data-prompt="budget-risk">
+                                    ⚠️ Am I in danger of exceeding any budget?
+                                </button>
+                                <button type="button" class="ai-chip" data-prompt="projection">
+                                    🔮 Forecast my month-end total spend
+                                </button>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <input
+                                    type="text"
+                                    id="aiQuestionInput"
+                                    class="form-control"
+                                    placeholder="Ask ExpenseAI anything (e.g. 'How much did I spend on Food?' or 'How is my budget?')..."
+                                >
+                                <button class="btn btn-primary px-4" type="button" id="askAiBtn">
+                                    <i class="bi bi-send-fill me-1"></i>
+                                    Ask AI
+                                </button>
+                            </div>
+
+                            <div id="aiResponseContainer" class="ai-response-box" style="display: none;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
+                                        <i class="bi bi-robot me-1"></i> ExpenseAI Analysis
+                                    </span>
+                                    <small class="text-muted" id="aiResponseTime"></small>
+                                </div>
+                                <div id="aiResponseContent"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+
+        <!-- ==================== FOOTER ==================== -->
+
+        <footer class="bg-white border-top mt-5">
+
+            <div class="container py-4 text-center">
+
+                <p class="text-muted mb-0">
+                    &copy; 2026 ExpenseAI. All rights reserved.
+                </p>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- ==================== GUEST RESTRICTION MODAL ==================== -->
+    <!-- Shown when Guest tries to access UPI or Gmail alerts -->
+    <div
+        class="modal fade"
+        id="guestRestrictionModal"
+        tabindex="-1"
+        aria-labelledby="guestRestrictionModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-3">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <span class="badge rounded-circle p-3 bg-warning-subtle text-warning fs-3">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2" id="guestRestrictionTitle">
+                        Gmail Login Required
+                    </h5>
+
+                    <p class="text-muted small mb-4" id="guestRestrictionMessage">
+                        UPI Bank Feeds and Automated Gmail Alerts require a verified Gmail account to securely sync statements and dispatch reports.
+                        <br><br>
+                        Sign in with your Gmail to connect banking feeds and schedule automated budget alerts.
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary py-2" id="guestUpgradeToGmailBtn">
+                            <i class="bi bi-google me-1"></i> Sign In with Gmail
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                            Stay in Guest Mode
+                        </button>
                     </div>
                 </div>
             </div>
@@ -997,7 +1108,7 @@
                                 <label for="upiIdInput" class="form-label">UPI ID (VPA)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white"><i class="bi bi-qr-code text-muted"></i></span>
-                                    <input type="text" id="upiIdInput" class="form-control" placeholder="username@bank" value="aryan@okaxis" required>
+                                    <input type="text" id="upiIdInput" class="form-control" placeholder="username@bank" required>
                                 </div>
                                 <div class="form-text">e.g., yourname@okaxis, yourname@ybl, 9876543210@paytm</div>
                             </div>
@@ -1054,7 +1165,7 @@
                             <label for="gmailEmailInput" class="form-label">Gmail Recipient Address</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="bi bi-google text-danger"></i></span>
-                                <input type="email" id="gmailEmailInput" class="form-control" placeholder="your.name@gmail.com" value="aryan@gmail.com" required>
+                                <input type="email" id="gmailEmailInput" class="form-control" placeholder="your.name@gmail.com" required>
                             </div>
                         </div>
 
@@ -1145,7 +1256,7 @@
                         <div class="email-preview-header">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="fw-bold mb-0" id="emailSubjectLine">
-                                    🚨 ExpenseAI: Budget Alert & Spending Overview for August
+                                    🚨 ExpenseAI: Budget Alert & Spending Overview
                                 </h5>
                                 <span class="badge bg-light text-muted fw-normal" id="emailTimestamp">Today, 9:00 AM</span>
                             </div>
@@ -1156,7 +1267,7 @@
                             </div>
                         </div>
 
-                        <!-- Email Body (Simulating HTML Email Template) -->
+                        <!-- Email Body -->
                         <div class="email-preview-body">
                             <div class="text-center pb-3 border-bottom mb-3">
                                 <h4 class="brand fw-bold mb-1">
@@ -1166,14 +1277,14 @@
                             </div>
 
                             <!-- Greeting -->
-                            <p class="mb-3">Hi <strong id="emailUserName">Aryan</strong>,</p>
+                            <p class="mb-3">Hi <strong id="emailUserName">User</strong>,</p>
 
                             <!-- Month Snapshot Cards -->
                             <div class="row g-2 mb-3 text-center">
                                 <div class="col-4">
                                     <div class="p-2 border rounded bg-light">
                                         <small class="text-muted d-block">Total Spent</small>
-                                        <strong class="fs-5 text-dark" id="emailTotalSpent">₹12,450</strong>
+                                        <strong class="fs-5 text-dark" id="emailTotalSpent">₹0</strong>
                                     </div>
                                 </div>
                                 <div class="col-4">
@@ -1185,7 +1296,7 @@
                                 <div class="col-4">
                                     <div class="p-2 border rounded bg-light">
                                         <small class="text-muted d-block">Remaining</small>
-                                        <strong class="fs-5 text-success" id="emailRemainingBudget">₹7,550</strong>
+                                        <strong class="fs-5 text-success" id="emailRemainingBudget">₹20,000</strong>
                                     </div>
                                 </div>
                             </div>
@@ -1193,7 +1304,7 @@
                             <!-- Dynamic Warning Box -->
                             <div class="alert alert-warning py-2 px-3 mb-3 small" id="emailWarningBox">
                                 <i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
-                                <span id="emailWarningText"><strong>Budget Notice:</strong> You have utilized 62% of your monthly budget. Watch out for Shopping & Food.</span>
+                                <span id="emailWarningText"><strong>Budget Notice:</strong> You have not exceeded any category limits.</span>
                             </div>
 
                             <!-- Category Highlights -->
@@ -1205,7 +1316,7 @@
                             <!-- AI Recommendation Tip -->
                             <div class="p-3 rounded bg-primary-subtle text-primary-emphasis mb-3 small">
                                 <strong class="d-block mb-1"><i class="bi bi-lightbulb-fill text-warning"></i> AI Smart Savings Recommendation:</strong>
-                                <span id="emailAiTipText">Small UPI micro-transactions under ₹300 represent frequent impulse purchases. Setting a digital wallet buffer will save ~₹1,500/month.</span>
+                                <span id="emailAiTipText">Automated tracking helps keep your budget in check.</span>
                             </div>
 
                             <!-- Footer note -->
@@ -1624,9 +1735,6 @@
                         <button type="button" class="btn btn-outline-success text-start" id="profileExportCsvBtn">
                             <i class="bi bi-file-earmark-spreadsheet me-2"></i> Export All Transactions as CSV
                         </button>
-                        <button type="button" class="btn btn-outline-primary text-start" id="resetDemoDataBtn">
-                            <i class="bi bi-arrow-repeat me-2"></i> Reset to Sample Demo Data
-                        </button>
                         <button type="button" class="btn btn-outline-danger text-start" id="clearAllDataBtn">
                             <i class="bi bi-trash3 me-2"></i> Clear All Expenses & Start Fresh
                         </button>
@@ -1653,21 +1761,6 @@
             </div>
         </div>
     </div>
-
-
-    <!-- ==================== FOOTER ==================== -->
-
-    <footer class="bg-white border-top mt-5">
-
-        <div class="container py-4 text-center">
-
-            <p class="text-muted mb-0">
-                &copy; 2026 ExpenseAI. All rights reserved.
-            </p>
-
-        </div>
-
-    </footer>
 
 
     <!-- Bootstrap JavaScript -->

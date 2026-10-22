@@ -1,23 +1,23 @@
 /**
  * ExpenseAI - Smart Expense Tracker Application Logic
- * Full functionality:
- * - User Authentication (Sign In, Sign Up, Sign Out, Demo Login, LocalStorage persistence)
- * - UPI Integration & Automated Bank Feed Sync (with UTR reference numbers)
- * - Gmail Reminders, Automated Budget Alerts & High-Fidelity Email Preview Simulator
- * - Dynamic Dashboard Calculations & Chart.js Visualizations
- * - Full Expenses CRUD, Live Search & Category Filtering
- * - Budgets Management & Smart AI Insights Engine
+ * 
+ * Rules:
+ * - Mandatory Login Wall: You cannot access anything without logging in or continuing as guest.
+ * - Guest Mode: Can track manual expenses, view stats and charts, but CANNOT access UPI or Gmail.
+ * - Gmail Requirement: Must log in with a Gmail address to unlock UPI sync and Gmail automated alerts.
+ * - Zero Dummy Expenses: Fresh accounts and guests start with ZERO expenses ([]).
+ *   Expenses are ONLY added manually by the user or automatically synced via UPI.
  */
 
 (function () {
     'use strict';
 
     // ==========================================
-    // 1. STORAGE KEYS & CONSTANTS
+    // 1. CONSTANTS & CONFIGURATION
     // ==========================================
 
-    const STORAGE_USERS_KEY = 'EXPENSEAI_USERS_V2';
-    const STORAGE_CURRENT_USER_ID_KEY = 'EXPENSEAI_CURRENT_USER_ID_V2';
+    const STORAGE_USERS_KEY = 'EXPENSEAI_USERS_V3';
+    const STORAGE_CURRENT_USER_ID_KEY = 'EXPENSEAI_CURRENT_USER_ID_V3';
 
     const CATEGORIES = {
         food: {
@@ -59,121 +59,6 @@
         'net-banking': 'Net Banking'
     };
 
-    const DEMO_EXPENSES = [
-        {
-            id: 'exp_1',
-            date: '2026-08-22',
-            description: 'Lunch at Subway',
-            category: 'food',
-            payment: 'upi',
-            amount: 350
-        },
-        {
-            id: 'exp_2',
-            date: '2026-08-21',
-            description: 'Uber to college',
-            category: 'transport',
-            payment: 'upi',
-            amount: 220
-        },
-        {
-            id: 'exp_3',
-            date: '2026-08-20',
-            description: 'Amazon Purchase',
-            category: 'shopping',
-            payment: 'card',
-            amount: 1200
-        },
-        {
-            id: 'exp_4',
-            date: '2026-08-19',
-            description: 'Dinner with friends',
-            category: 'food',
-            payment: 'upi',
-            amount: 1450
-        },
-        {
-            id: 'exp_5',
-            date: '2026-08-18',
-            description: 'Petrol fill-up',
-            category: 'transport',
-            payment: 'card',
-            amount: 1100
-        },
-        {
-            id: 'exp_6',
-            date: '2026-08-17',
-            description: 'Movie ticket & popcorn',
-            category: 'entertainment',
-            payment: 'upi',
-            amount: 650
-        },
-        {
-            id: 'exp_7',
-            date: '2026-08-16',
-            description: 'Weekly grocery basket',
-            category: 'food',
-            payment: 'net-banking',
-            amount: 1850
-        },
-        {
-            id: 'exp_8',
-            date: '2026-08-15',
-            description: 'Running shoes on sale',
-            category: 'shopping',
-            payment: 'card',
-            amount: 2300
-        },
-        {
-            id: 'exp_9',
-            date: '2026-08-14',
-            description: 'Monthly Cloud & App Subscriptions',
-            category: 'other',
-            payment: 'card',
-            amount: 799
-        },
-        {
-            id: 'exp_10',
-            date: '2026-08-12',
-            description: 'Metro smart card recharge',
-            category: 'transport',
-            payment: 'upi',
-            amount: 500
-        },
-        {
-            id: 'exp_11',
-            date: '2026-08-10',
-            description: 'Cafe coffee & snacks',
-            category: 'food',
-            payment: 'cash',
-            amount: 600
-        },
-        {
-            id: 'exp_12',
-            date: '2026-08-08',
-            description: 'Steam summer game',
-            category: 'entertainment',
-            payment: 'card',
-            amount: 550
-        },
-        {
-            id: 'exp_13',
-            date: '2026-08-05',
-            description: 'Stationery & notebook supplies',
-            category: 'other',
-            payment: 'cash',
-            amount: 601
-        },
-        {
-            id: 'exp_14',
-            date: '2026-08-02',
-            description: 'Local cab ride',
-            category: 'transport',
-            payment: 'upi',
-            amount: 280
-        }
-    ];
-
     // ==========================================
     // 2. APPLICATION STATE
     // ==========================================
@@ -192,7 +77,6 @@
         chartInstance: null
     };
 
-    // Helper to get active user
     function getCurrentUser() {
         if (!state.currentUserId || !state.users[state.currentUserId]) {
             return null;
@@ -201,7 +85,7 @@
     }
 
     // ==========================================
-    // 3. STORAGE & STATE PERSISTENCE
+    // 3. STORAGE & PERSISTENCE
     // ==========================================
 
     function loadState() {
@@ -211,64 +95,21 @@
 
             if (rawUsers) {
                 state.users = JSON.parse(rawUsers);
-            }
-
-            // Ensure at least one default user exists for immediate access
-            if (!state.users || Object.keys(state.users).length === 0) {
-                initDefaultUser();
+            } else {
+                state.users = {};
             }
 
             if (rawCurrentId && state.users[rawCurrentId]) {
                 state.currentUserId = rawCurrentId;
             } else {
-                state.currentUserId = Object.keys(state.users)[0];
+                // Not logged in by default - enforce login wall!
+                state.currentUserId = null;
             }
         } catch (err) {
-            console.warn('Error reading user state from localStorage:', err);
-            initDefaultUser();
+            console.warn('Error reading storage:', err);
+            state.users = {};
+            state.currentUserId = null;
         }
-    }
-
-    function initDefaultUser() {
-        const defaultUser = {
-            id: 'user_aryan',
-            name: 'Aryan Sharma',
-            email: 'aryan@gmail.com',
-            password: 'password123',
-            currency: '₹',
-            monthlyBudget: 20000,
-            upi: {
-                linked: true,
-                vpa: 'aryan@okaxis',
-                bank: 'HDFC Bank (••4128)',
-                autoSync: true,
-                lastSynced: '2026-08-22'
-            },
-            gmail: {
-                linked: true,
-                email: 'aryan@gmail.com',
-                frequency: 'weekly',
-                alertBudgetWarning: true,
-                alertAiInsights: true,
-                alertWeeklyDigest: true,
-                alertMonthlyReport: true,
-                lastDispatched: null
-            },
-            budgets: {
-                food: 5000,
-                transport: 3000,
-                shopping: 4000,
-                entertainment: 2500,
-                other: 2000
-            },
-            expenses: [...DEMO_EXPENSES]
-        };
-
-        state.users = {
-            [defaultUser.id]: defaultUser
-        };
-        state.currentUserId = defaultUser.id;
-        saveState();
     }
 
     function saveState() {
@@ -280,7 +121,7 @@
                 localStorage.removeItem(STORAGE_CURRENT_USER_ID_KEY);
             }
         } catch (err) {
-            console.error('Failed to save state to localStorage:', err);
+            console.error('Failed to save state:', err);
         }
     }
 
@@ -341,7 +182,7 @@
 
     function getActivePeriod() {
         const user = getCurrentUser();
-        if (user && user.expenses.length > 0) {
+        if (user && user.expenses && user.expenses.length > 0) {
             const sorted = [...user.expenses].sort((a, b) => b.date.localeCompare(a.date));
             const latest = sorted[0].date.split('-');
             return {
@@ -358,87 +199,198 @@
 
     function getCurrentMonthExpenses() {
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user || !user.expenses) return [];
         const period = getActivePeriod();
         const prefix = `${period.year}-${String(period.month).padStart(2, '0')}`;
         return user.expenses.filter(e => e.date && e.date.startsWith(prefix));
     }
 
+    function isGmailAddress(email) {
+        if (!email) return false;
+        const clean = email.trim().toLowerCase();
+        return clean.endsWith('@gmail.com') || clean.endsWith('@googlemail.com');
+    }
+
     // ==========================================
-    // 5. USER AUTHENTICATION LOGIC
+    // 5. AUTHENTICATION & LOGIN WALL LOGIC
     // ==========================================
 
-    function handleSignIn(e) {
+    function updateAuthGatewayVisibility() {
+        const gatewayScreen = document.getElementById('authGatewayScreen');
+        const appContent = document.getElementById('appContent');
+        const user = getCurrentUser();
+
+        if (!user) {
+            // Not authenticated: Show Login Gateway, Hide Main Content
+            if (gatewayScreen) gatewayScreen.classList.remove('d-none');
+            if (appContent) appContent.classList.add('d-none');
+        } else {
+            // Authenticated (either Gmail or Guest): Hide Login Gateway, Show Content
+            if (gatewayScreen) gatewayScreen.classList.add('d-none');
+            if (appContent) appContent.classList.remove('d-none');
+        }
+    }
+
+    function handleGoogleFastLogin() {
+        // 1-Click Fast Google / Gmail Login
+        const defaultGmail = 'aryan@gmail.com';
+        const defaultName = 'Aryan Sharma';
+
+        // Check if account already exists
+        let existingUser = Object.values(state.users).find(u => u.email.toLowerCase() === defaultGmail);
+
+        if (!existingUser) {
+            existingUser = {
+                id: 'user_gmail_' + Date.now(),
+                name: defaultName,
+                email: defaultGmail,
+                password: 'gmail-oauth-authenticated',
+                isGuest: false,
+                currency: '₹',
+                monthlyBudget: 20000,
+                upi: {
+                    linked: true,
+                    vpa: 'aryan@okaxis',
+                    bank: 'HDFC Bank (••4128)',
+                    autoSync: true,
+                    lastSynced: null
+                },
+                gmail: {
+                    linked: true,
+                    email: defaultGmail,
+                    frequency: 'weekly',
+                    alertBudgetWarning: true,
+                    alertAiInsights: true,
+                    alertWeeklyDigest: true,
+                    alertMonthlyReport: true,
+                    lastDispatched: null
+                },
+                budgets: {
+                    food: 5000,
+                    transport: 3000,
+                    shopping: 4000,
+                    entertainment: 2500,
+                    other: 2000
+                },
+                expenses: [] // Starts with ZERO dummy expenses!
+            };
+            state.users[existingUser.id] = existingUser;
+        }
+
+        state.currentUserId = existingUser.id;
+        saveState();
+
+        showToast(`Signed in with Google as ${existingUser.name} (${existingUser.email})!`, 'success');
+        refreshAllViews();
+    }
+
+    function handleGatewaySignIn(e) {
         e.preventDefault();
-        const emailInput = document.getElementById('loginEmail');
-        const passwordInput = document.getElementById('loginPassword');
+        const emailInput = document.getElementById('gtLoginEmail');
+        const passwordInput = document.getElementById('gtLoginPassword');
         const email = emailInput.value.trim().toLowerCase();
         const password = passwordInput.value;
 
-        const foundUser = Object.values(state.users).find(
+        if (!isGmailAddress(email)) {
+            showToast('Please sign in with a valid Gmail address (e.g. name@gmail.com).', 'warning');
+            emailInput.focus();
+            return;
+        }
+
+        let foundUser = Object.values(state.users).find(
             u => u.email.toLowerCase() === email && u.password === password
         );
 
         if (!foundUser) {
-            showToast('Invalid email or password. Please try again or use Demo Login.', 'danger');
-            return;
+            // First time login with this Gmail? Create clean account automatically!
+            const newId = 'user_gmail_' + Date.now();
+            const username = email.split('@')[0];
+            const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
+
+            foundUser = {
+                id: newId,
+                name: formattedName,
+                email: email,
+                password: password,
+                isGuest: false,
+                currency: '₹',
+                monthlyBudget: 20000,
+                upi: {
+                    linked: false,
+                    vpa: username + '@okaxis',
+                    bank: 'Bank Account Linked',
+                    autoSync: true,
+                    lastSynced: null
+                },
+                gmail: {
+                    linked: true,
+                    email: email,
+                    frequency: 'weekly',
+                    alertBudgetWarning: true,
+                    alertAiInsights: true,
+                    alertWeeklyDigest: true,
+                    alertMonthlyReport: true,
+                    lastDispatched: null
+                },
+                budgets: {
+                    food: 5000,
+                    transport: 3000,
+                    shopping: 4000,
+                    entertainment: 2500,
+                    other: 2000
+                },
+                expenses: [] // Starts with ZERO dummy expenses!
+            };
+            state.users[newId] = foundUser;
+            showToast(`Welcome! Account created for ${email}.`, 'success');
+        } else {
+            showToast(`Welcome back, ${foundUser.name}!`, 'success');
         }
 
         state.currentUserId = foundUser.id;
         saveState();
-
-        const authModalEl = document.getElementById('authModal');
-        if (authModalEl && window.bootstrap) {
-            const modal = window.bootstrap.Modal.getInstance(authModalEl);
-            if (modal) modal.hide();
-        }
-
-        showToast(`Welcome back, ${foundUser.name}!`, 'success');
         refreshAllViews();
     }
 
-    function handleSignUp(e) {
+    function handleGatewaySignUp(e) {
         e.preventDefault();
-        const nameInput = document.getElementById('signupName');
-        const emailInput = document.getElementById('signupEmail');
-        const passInput = document.getElementById('signupPassword');
-        const confirmPassInput = document.getElementById('signupConfirmPassword');
-        const budgetInput = document.getElementById('signupBudget');
+        const nameInput = document.getElementById('gtSignupName');
+        const emailInput = document.getElementById('gtSignupEmail');
+        const passInput = document.getElementById('gtSignupPassword');
+        const confirmInput = document.getElementById('gtSignupConfirm');
 
         const name = nameInput.value.trim();
         const email = emailInput.value.trim().toLowerCase();
-        const password = passInput.value;
-        const confirmPass = confirmPassInput.value;
-        const budget = parseFloat(budgetInput.value) || 20000;
+        const pass = passInput.value;
+        const confirm = confirmInput.value;
 
-        if (password !== confirmPass) {
-            showToast('Passwords do not match. Please re-enter.', 'danger');
-            confirmPassInput.focus();
+        if (!isGmailAddress(email)) {
+            showToast('A Gmail address (@gmail.com) is required to register.', 'warning');
+            emailInput.focus();
             return;
         }
 
-        // Check if email already registered
-        const exists = Object.values(state.users).some(u => u.email.toLowerCase() === email);
-        if (exists) {
-            showToast('An account with this email already exists. Please Sign In.', 'warning');
+        if (pass !== confirm) {
+            showToast('Passwords do not match.', 'danger');
+            confirmInput.focus();
             return;
         }
 
-        // Create new user account
-        const newUserId = 'user_' + Date.now();
+        const newId = 'user_gmail_' + Date.now();
         const newUser = {
-            id: newUserId,
+            id: newId,
             name: name,
             email: email,
-            password: password,
+            password: pass,
+            isGuest: false,
             currency: '₹',
-            monthlyBudget: budget,
+            monthlyBudget: 20000,
             upi: {
-                linked: true,
+                linked: false,
                 vpa: email.split('@')[0] + '@okaxis',
                 bank: 'Bank Account Linked',
                 autoSync: true,
-                lastSynced: new Date().toISOString().split('T')[0]
+                lastSynced: null
             },
             gmail: {
                 linked: true,
@@ -451,48 +403,73 @@
                 lastDispatched: null
             },
             budgets: {
-                food: Math.round(budget * 0.25),
-                transport: Math.round(budget * 0.15),
-                shopping: Math.round(budget * 0.20),
-                entertainment: Math.round(budget * 0.15),
-                other: Math.round(budget * 0.10)
+                food: 5000,
+                transport: 3000,
+                shopping: 4000,
+                entertainment: 2500,
+                other: 2000
             },
-            expenses: [...DEMO_EXPENSES]
+            expenses: [] // Starts with ZERO dummy expenses!
         };
 
-        state.users[newUserId] = newUser;
-        state.currentUserId = newUserId;
+        state.users[newId] = newUser;
+        state.currentUserId = newId;
         saveState();
 
-        const authModalEl = document.getElementById('authModal');
-        if (authModalEl && window.bootstrap) {
-            const modal = window.bootstrap.Modal.getInstance(authModalEl);
-            if (modal) modal.hide();
-        }
-
-        showToast(`Account created! Welcome to ExpenseAI, ${name}.`, 'success');
+        showToast(`Account created with Gmail! Welcome, ${name}.`, 'success');
         refreshAllViews();
     }
 
-    function handleDemoLogin() {
-        initDefaultUser();
-        state.currentUserId = 'user_aryan';
+    function handleContinueAsGuest() {
+        const guestId = 'guest_' + Date.now();
+        const guestUser = {
+            id: guestId,
+            name: 'Guest User',
+            email: 'guest@expenseai.local',
+            password: '',
+            isGuest: true,
+            currency: '₹',
+            monthlyBudget: 20000,
+            upi: {
+                linked: false,
+                vpa: '',
+                bank: '',
+                autoSync: false,
+                lastSynced: null
+            },
+            gmail: {
+                linked: false,
+                email: '',
+                frequency: 'weekly',
+                alertBudgetWarning: false,
+                alertAiInsights: false,
+                alertWeeklyDigest: false,
+                alertMonthlyReport: false,
+                lastDispatched: null
+            },
+            budgets: {
+                food: 5000,
+                transport: 3000,
+                shopping: 4000,
+                entertainment: 2500,
+                other: 2000
+            },
+            expenses: [] // Starts with ZERO dummy expenses!
+        };
+
+        state.users[guestId] = guestUser;
+        state.currentUserId = guestId;
         saveState();
 
-        const authModalEl = document.getElementById('authModal');
-        if (authModalEl && window.bootstrap) {
-            const modal = window.bootstrap.Modal.getInstance(authModalEl);
-            if (modal) modal.hide();
-        }
-
-        showToast('Logged in with Demo Account (Aryan Sharma)', 'info');
+        showToast('Logged in as Guest. Note: UPI sync and Gmail alerts require Gmail login.', 'info');
         refreshAllViews();
     }
 
     function handleSignOut() {
-        if (!confirm('Are you sure you want to sign out?')) {
+        if (!confirm('Are you sure you want to sign out? You will return to the login screen.')) {
             return;
         }
+
         state.currentUserId = null;
         saveState();
         refreshAllViews();
@@ -500,10 +477,70 @@
     }
 
     // ==========================================
-    // 6. UPI INTEGRATION & TRANSACTION SYNC
+    // 6. GUEST RESTRICTION ENFORCER
     // ==========================================
 
-    function renderUpiModal() {
+    function checkGuestRestriction(actionName = 'this feature') {
+        const user = getCurrentUser();
+        if (!user || user.isGuest) {
+            const titleEl = document.getElementById('guestRestrictionTitle');
+            const msgEl = document.getElementById('guestRestrictionMessage');
+
+            if (titleEl) titleEl.textContent = `Gmail Login Required for ${actionName}`;
+            if (msgEl) {
+                msgEl.innerHTML = `
+                    <strong>${actionName}</strong> is an exclusive feature that requires a verified Gmail login.
+                    <br><br>
+                    In Guest mode, you can track manual expenses and view charts. To connect live UPI banking feeds, sync UTR transactions, and receive automated Gmail alerts, please sign in with your Gmail.
+                `;
+            }
+
+            const modalEl = document.getElementById('guestRestrictionModal');
+            if (modalEl) {
+                if (window.bootstrap && window.bootstrap.Modal) {
+                    const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                } else {
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                }
+            }
+            return true; // Blocked
+        }
+        return false; // Allowed
+    }
+
+    function handleUpgradeFromGuestToGmail() {
+        const modalEl = document.getElementById('guestRestrictionModal');
+        if (modalEl) {
+            if (window.bootstrap && window.bootstrap.Modal) {
+                const modal = window.bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            } else {
+                modalEl.classList.remove('show');
+                modalEl.style.display = 'none';
+            }
+        }
+
+        // Sign out of guest and reveal the login gateway
+        state.currentUserId = null;
+        saveState();
+        refreshAllViews();
+    }
+
+    // ==========================================
+    // 7. UPI INTEGRATION & SYNC
+    // ==========================================
+
+    function openUpiModal() {
+        if (checkGuestRestriction('UPI Bank Link & Sync')) return;
+
+        renderUpiModalContent();
+        const m = document.getElementById('upiModal');
+        if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
+    }
+
+    function renderUpiModalContent() {
         const user = getCurrentUser();
         const connectedView = document.getElementById('upiConnectedView');
         const setupView = document.getElementById('upiSetupView');
@@ -514,7 +551,6 @@
             if (connectedView) connectedView.style.display = 'block';
             if (setupView) setupView.style.display = 'none';
 
-            // Populate UPI card
             const bankEl = document.getElementById('upiBankName');
             const vpaEl = document.getElementById('upiVpaDisplay');
             const outflowEl = document.getElementById('upiTotalOutflow');
@@ -523,7 +559,6 @@
             if (bankEl) bankEl.textContent = user.upi.bank || 'UPI Bank Account';
             if (vpaEl) vpaEl.textContent = user.upi.vpa || 'username@upi';
 
-            // Calculate total UPI outflow in current month
             const monthExpenses = getCurrentMonthExpenses();
             const upiTotal = monthExpenses
                 .filter(e => e.payment === 'upi')
@@ -537,7 +572,6 @@
             if (connectedView) connectedView.style.display = 'none';
             if (setupView) setupView.style.display = 'block';
 
-            // Pre-fill default suggested VPA
             const vpaInput = document.getElementById('upiIdInput');
             if (vpaInput) {
                 vpaInput.value = (user.email ? user.email.split('@')[0] : 'user') + '@okaxis';
@@ -548,10 +582,8 @@
     function handleSaveUpi(e) {
         e.preventDefault();
         const user = getCurrentUser();
-        if (!user) {
-            showToast('Please sign in to link your UPI account.', 'warning');
-            return;
-        }
+        if (!user) return;
+        if (checkGuestRestriction('UPI Bank Link')) return;
 
         const vpaInput = document.getElementById('upiIdInput');
         const bankInput = document.getElementById('upiBankInput');
@@ -591,7 +623,7 @@
         const user = getCurrentUser();
         if (!user) return;
 
-        if (!confirm('Are you sure you want to unlink your UPI account? Automated transaction import will be paused.')) {
+        if (!confirm('Are you sure you want to unlink your UPI account? Automated sync will be paused.')) {
             return;
         }
 
@@ -616,23 +648,18 @@
     }
 
     function syncUpiTransactions() {
+        if (checkGuestRestriction('Live UPI Sync')) return;
+
         const user = getCurrentUser();
-        if (!user) {
-            showToast('Please sign in first.', 'warning');
-            return;
-        }
+        if (!user) return;
 
         if (!user.upi || !user.upi.linked) {
             showToast('Please link your UPI account first to enable live sync!', 'warning');
-            const modalEl = document.getElementById('upiModal');
-            if (modalEl && window.bootstrap) {
-                const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            }
+            openUpiModal();
             return;
         }
 
-        // Generate 3 simulated recent bank UPI transactions
+        // Generate 3 simulated verified UPI transactions with live UTR numbers
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -643,7 +670,7 @@
             {
                 id: 'upi_' + Date.now() + '_1',
                 date: todayIso,
-                description: `Zomato: Food Order [UPI-UTR: ${Math.floor(10000000 + Math.random() * 90000000)}]`,
+                description: `Zomato: Gourmet Pizza [UPI-UTR: ${Math.floor(10000000 + Math.random() * 90000000)}]`,
                 category: 'food',
                 payment: 'upi',
                 amount: 380
@@ -659,28 +686,35 @@
             {
                 id: 'upi_' + Date.now() + '_3',
                 date: todayIso,
-                description: `HPCL Auto Fuel Pump [UPI-UTR: ${Math.floor(10000000 + Math.random() * 90000000)}]`,
+                description: `HPCL Fuel Station [UPI-UTR: ${Math.floor(10000000 + Math.random() * 90000000)}]`,
                 category: 'transport',
                 payment: 'upi',
                 amount: 850
             }
         ];
 
-        // Prepend to expenses
         simulatedUpiItems.forEach(item => user.expenses.unshift(item));
         user.upi.lastSynced = todayIso;
 
         saveState();
         refreshAllViews();
 
-        showToast(`Synced 3 new verified UPI transactions from ${user.upi.bank}!`, 'success');
+        showToast(`Synced 3 verified UPI transactions from ${user.upi.bank}!`, 'success');
     }
 
     // ==========================================
-    // 7. GMAIL REMINDERS, DIGESTS & WARNINGS
+    // 8. GMAIL REMINDERS & ALERTS
     // ==========================================
 
-    function renderGmailModal() {
+    function openGmailModal() {
+        if (checkGuestRestriction('Gmail Reminders & Alerts')) return;
+
+        renderGmailModalContent();
+        const m = document.getElementById('gmailModal');
+        if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
+    }
+
+    function renderGmailModalContent() {
         const user = getCurrentUser();
         if (!user) return;
 
@@ -694,7 +728,7 @@
         if (statusBadge) {
             const isLinked = user.gmail && user.gmail.linked;
             statusBadge.className = isLinked ? 'badge bg-success-subtle text-success' : 'badge bg-secondary-subtle text-secondary';
-            statusBadge.textContent = isLinked ? 'Connected & Scheduled' : 'Not Configured';
+            statusBadge.textContent = isLinked ? 'Connected & Active' : 'Not Configured';
         }
 
         if (user.gmail) {
@@ -712,11 +746,10 @@
 
     function handleSaveGmailSettings(e) {
         e.preventDefault();
+        if (checkGuestRestriction('Gmail Settings')) return;
+
         const user = getCurrentUser();
-        if (!user) {
-            showToast('Please sign in to configure Gmail alerts.', 'warning');
-            return;
-        }
+        if (!user) return;
 
         const emailInput = document.getElementById('gmailEmailInput');
         const freqSelect = document.getElementById('gmailFrequencySelect');
@@ -726,8 +759,8 @@
         const moBox = document.getElementById('alertMonthlyReport');
 
         const email = emailInput.value.trim().toLowerCase();
-        if (!email || !email.includes('@')) {
-            showToast('Please enter a valid Gmail address.', 'danger');
+        if (!isGmailAddress(email)) {
+            showToast('Please enter a valid Gmail address (@gmail.com).', 'danger');
             emailInput.focus();
             return;
         }
@@ -756,11 +789,10 @@
     }
 
     function openEmailPreviewModal() {
+        if (checkGuestRestriction('Email Preview & Automated Alerts')) return;
+
         const user = getCurrentUser();
-        if (!user) {
-            showToast('Please sign in to preview email digests.', 'warning');
-            return;
-        }
+        if (!user) return;
 
         const period = getActivePeriod();
         const monthName = getMonthName(period.month);
@@ -769,15 +801,20 @@
         const monthlyBudget = Number(user.monthlyBudget) || 20000;
         const remaining = monthlyBudget - totalSpent;
 
-        // Recipient and metadata
         const userEmail = (user.gmail && user.gmail.email) ? user.gmail.email : user.email;
-        document.getElementById('emailRecipientDisplay').textContent = userEmail;
-        document.getElementById('emailFooterAddress').textContent = userEmail;
-        document.getElementById('emailUserName').textContent = user.name;
-        document.getElementById('emailTimestamp').textContent = `Today at 9:00 AM`;
+        const recipEl = document.getElementById('emailRecipientDisplay');
+        if (recipEl) recipEl.textContent = userEmail;
+        const footerEl = document.getElementById('emailFooterAddress');
+        if (footerEl) footerEl.textContent = userEmail;
+        const nameEl = document.getElementById('emailUserName');
+        if (nameEl) nameEl.textContent = user.name;
+        const timeEl = document.getElementById('emailTimestamp');
+        if (timeEl) timeEl.textContent = `Today at 9:00 AM`;
 
-        document.getElementById('emailTotalSpent').textContent = formatCurrency(totalSpent);
-        document.getElementById('emailMonthlyBudget').textContent = formatCurrency(monthlyBudget);
+        const spentEl = document.getElementById('emailTotalSpent');
+        if (spentEl) spentEl.textContent = formatCurrency(totalSpent);
+        const budgetEl = document.getElementById('emailMonthlyBudget');
+        if (budgetEl) budgetEl.textContent = formatCurrency(monthlyBudget);
 
         const remainingEl = document.getElementById('emailRemainingBudget');
         if (remainingEl) {
@@ -785,7 +822,6 @@
             remainingEl.className = remaining >= 0 ? 'fs-5 text-success' : 'fs-5 text-danger';
         }
 
-        // Warning logic
         const categoryTotals = {};
         Object.keys(CATEGORIES).forEach(k => categoryTotals[k] = 0);
         monthExpenses.forEach(e => {
@@ -795,7 +831,7 @@
 
         const overCategories = Object.keys(CATEGORIES).filter(k => {
             const limit = user.budgets[k] || CATEGORIES[k].defaultBudget;
-            return categoryTotals[k] >= limit;
+            return categoryTotals[k] >= limit && categoryTotals[k] > 0;
         });
 
         const warningBox = document.getElementById('emailWarningBox');
@@ -804,19 +840,18 @@
 
         if (overCategories.length > 0) {
             warningBox.className = 'alert alert-danger py-2 px-3 mb-3 small';
-            warningText.innerHTML = `<strong>⚠️ CRITICAL OVERRUN:</strong> You have exceeded the allocated budget limit in <strong>${overCategories.map(c => CATEGORIES[c].name).join(', ')}</strong>. Please review your non-essential spending.`;
+            warningText.innerHTML = `<strong>⚠️ CRITICAL OVERRUN:</strong> You have exceeded the allocated budget limit in <strong>${overCategories.map(c => CATEGORIES[c].name).join(', ')}</strong>.`;
             subjectLine.textContent = `🚨 URGENT: Budget Limit Exceeded in ${overCategories.map(c => CATEGORIES[c].name).join(', ')} | ExpenseAI Alert`;
-        } else if (remaining < monthlyBudget * 0.25) {
+        } else if (totalSpent > 0 && remaining < monthlyBudget * 0.25) {
             warningBox.className = 'alert alert-warning py-2 px-3 mb-3 small';
-            warningText.innerHTML = `<strong>⚡ Budget Warning:</strong> Over 75% of your monthly budget is spent with ${30 - new Date().getDate()} days remaining.`;
+            warningText.innerHTML = `<strong>⚡ Budget Warning:</strong> Over 75% of your monthly budget is spent.`;
             subjectLine.textContent = `⚠️ ExpenseAI Reminder: 75% of Monthly Budget Utilized`;
         } else {
             warningBox.className = 'alert alert-success py-2 px-3 mb-3 small';
-            warningText.innerHTML = `<strong>✅ Financial Health Good:</strong> All categories are currently well within their safety margins. Keep it up!`;
+            warningText.innerHTML = `<strong>✅ Financial Health Good:</strong> All categories are within safe limits.`;
             subjectLine.textContent = `📊 ExpenseAI ${monthName} Spending Digest: On Track with Your Budget`;
         }
 
-        // Category breakdown list
         const catListContainer = document.getElementById('emailCategoryList');
         if (catListContainer) {
             let catHtml = '';
@@ -839,14 +874,14 @@
             catListContainer.innerHTML = catHtml;
         }
 
-        // Personalized AI tip
         const aiTipEl = document.getElementById('emailAiTipText');
         if (aiTipEl) {
             const upiTotal = monthExpenses.filter(e => e.payment === 'upi').reduce((s, i) => s + (Number(i.amount) || 0), 0);
-            aiTipEl.textContent = `You've completed ${monthExpenses.filter(e => e.payment === 'upi').length} UPI transactions totaling ${formatCurrency(upiTotal)}. Cutting back on 2 food delivery orders per week can save up to ${formatCurrency(Math.round(totalSpent * 0.15))} monthly!`;
+            aiTipEl.textContent = totalSpent > 0
+                ? `You've completed ${monthExpenses.filter(e => e.payment === 'upi').length} UPI transactions totaling ${formatCurrency(upiTotal)}. Tracking digital micro-spends saves up to ~15% monthly!`
+                : 'Welcome to ExpenseAI! Once you log expenses or sync your UPI feed, you will receive smart personalized savings tips.';
         }
 
-        // Show Modal
         const modalEl = document.getElementById('emailPreviewModal');
         if (modalEl && window.bootstrap) {
             const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -868,82 +903,118 @@
     }
 
     // ==========================================
-    // 8. DASHBOARD STATS & NAVBAR RENDERING
+    // 9. DASHBOARD STATS & NAVBAR RENDERING
     // ==========================================
 
     function renderDashboardStats() {
         const user = getCurrentUser();
-        const navAuthContainer = document.getElementById('navbarAuthContainer');
-        const navSignInBtn = document.getElementById('navSignInBtn');
-        const userMenuDropdown = document.getElementById('userMenuDropdown');
-
-        if (!user) {
-            // Logged out UI state
-            if (navSignInBtn) navSignInBtn.classList.remove('d-none');
-            if (userMenuDropdown) userMenuDropdown.classList.add('d-none');
-
-            document.getElementById('welcomeSubtitle').textContent = 'Please sign in to view and manage your expenses.';
-            document.getElementById('totalSpentValue').textContent = '₹0';
-            document.getElementById('monthlyBudgetValue').textContent = '₹0';
-            document.getElementById('budgetRemainingValue').textContent = 'Sign in required';
-            document.getElementById('avgDailyValue').textContent = '₹0';
-            document.getElementById('transactionsCountValue').textContent = '0';
-            return;
-        }
-
-        // Logged in UI state
-        if (navSignInBtn) navSignInBtn.classList.add('d-none');
-        if (userMenuDropdown) userMenuDropdown.classList.remove('d-none');
+        if (!user) return;
 
         // Nav User Avatar & Names
         const navUserAvatar = document.getElementById('navUserAvatar');
         const navUserName = document.getElementById('navUserName');
         const dropdownUserName = document.getElementById('dropdownUserName');
         const dropdownUserEmail = document.getElementById('dropdownUserEmail');
+        const dropdownUserRole = document.getElementById('dropdownUserRole');
 
-        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        if (navUserAvatar) navUserAvatar.textContent = initials || 'U';
-        if (navUserName) navUserName.textContent = user.name.split(' ')[0] || 'User';
-        if (dropdownUserName) dropdownUserName.textContent = user.name;
-        if (dropdownUserEmail) dropdownUserEmail.textContent = user.email;
-
-        // Nav and Bar Integration Badges
-        const isUpiLinked = user.upi && user.upi.linked;
-        const navUpiBadge = document.getElementById('navUpiBadge');
-        if (navUpiBadge) {
-            navUpiBadge.className = isUpiLinked ? 'badge bg-success-subtle text-success ms-auto' : 'badge bg-secondary-subtle text-secondary ms-auto';
-            navUpiBadge.textContent = isUpiLinked ? 'Active' : 'Setup';
+        if (user.isGuest) {
+            if (navUserAvatar) {
+                navUserAvatar.textContent = 'G';
+                navUserAvatar.className = 'user-avatar avatar-guest';
+            }
+            if (navUserName) navUserName.textContent = 'Guest User';
+            if (dropdownUserName) dropdownUserName.textContent = 'Guest User';
+            if (dropdownUserEmail) dropdownUserEmail.textContent = 'Manual Tracking Only';
+            if (dropdownUserRole) {
+                dropdownUserRole.textContent = 'Guest';
+                dropdownUserRole.className = 'badge bg-secondary-subtle text-secondary';
+            }
+        } else {
+            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            if (navUserAvatar) {
+                navUserAvatar.textContent = initials || 'U';
+                navUserAvatar.className = 'user-avatar';
+            }
+            if (navUserName) navUserName.textContent = user.name.split(' ')[0] || 'User';
+            if (dropdownUserName) dropdownUserName.textContent = user.name;
+            if (dropdownUserEmail) dropdownUserEmail.textContent = user.email;
+            if (dropdownUserRole) {
+                dropdownUserRole.textContent = 'Gmail Verified';
+                dropdownUserRole.className = 'badge bg-primary-subtle text-primary';
+            }
         }
 
-        const isGmailLinked = user.gmail && user.gmail.linked;
+        // Nav and Bar Integration Badges
+        const isUpiLinked = !user.isGuest && user.upi && user.upi.linked;
+        const navUpiBadge = document.getElementById('navUpiBadge');
+        if (navUpiBadge) {
+            if (user.isGuest) {
+                navUpiBadge.className = 'badge bg-light text-muted border ms-auto';
+                navUpiBadge.innerHTML = '<i class="bi bi-lock-fill"></i> Locked';
+            } else {
+                navUpiBadge.className = isUpiLinked ? 'badge bg-success-subtle text-success ms-auto' : 'badge bg-secondary-subtle text-secondary ms-auto';
+                navUpiBadge.textContent = isUpiLinked ? 'Active' : 'Setup';
+            }
+        }
+
+        const isGmailLinked = !user.isGuest && user.gmail && user.gmail.linked;
         const navGmailBadge = document.getElementById('navGmailBadge');
         if (navGmailBadge) {
-            navGmailBadge.className = isGmailLinked ? 'badge bg-primary-subtle text-primary ms-auto' : 'badge bg-secondary-subtle text-secondary ms-auto';
-            navGmailBadge.textContent = isGmailLinked ? (user.gmail.frequency || 'Weekly') : 'Inactive';
+            if (user.isGuest) {
+                navGmailBadge.className = 'badge bg-light text-muted border ms-auto';
+                navGmailBadge.innerHTML = '<i class="bi bi-lock-fill"></i> Locked';
+            } else {
+                navGmailBadge.className = isGmailLinked ? 'badge bg-primary-subtle text-primary ms-auto' : 'badge bg-secondary-subtle text-secondary ms-auto';
+                navGmailBadge.textContent = isGmailLinked ? (user.gmail.frequency || 'Weekly') : 'Configure';
+            }
         }
 
         // Integrations Bar on Dashboard
+        const upiBarBtn = document.getElementById('upiBarBtn');
         const upiBarText = document.getElementById('upiBarText');
         const upiBarBadge = document.getElementById('upiBarBadge');
-        if (upiBarText) {
-            upiBarText.textContent = isUpiLinked ? `UPI: ${user.upi.vpa}` : 'UPI: Not Linked';
-        }
-        if (upiBarBadge) {
-            upiBarBadge.className = isUpiLinked ? 'badge bg-success-subtle text-success' : 'badge bg-secondary-subtle text-secondary';
-            upiBarBadge.textContent = isUpiLinked ? 'Active' : 'Setup';
+
+        if (upiBarBtn) {
+            if (user.isGuest) {
+                upiBarBtn.className = 'integration-item item-locked';
+                if (upiBarText) upiBarText.textContent = 'UPI: Login Required';
+                if (upiBarBadge) {
+                    upiBarBadge.className = 'badge bg-secondary-subtle text-secondary';
+                    upiBarBadge.innerHTML = '<i class="bi bi-lock-fill"></i> Locked';
+                }
+            } else {
+                upiBarBtn.className = 'integration-item';
+                if (upiBarText) upiBarText.textContent = isUpiLinked ? `UPI: ${user.upi.vpa}` : 'UPI: Not Linked';
+                if (upiBarBadge) {
+                    upiBarBadge.className = isUpiLinked ? 'badge bg-success-subtle text-success' : 'badge bg-secondary-subtle text-secondary';
+                    upiBarBadge.textContent = isUpiLinked ? 'Active' : 'Setup';
+                }
+            }
         }
 
+        const gmailBarBtn = document.getElementById('gmailBarBtn');
         const gmailBarText = document.getElementById('gmailBarText');
         const gmailBarBadge = document.getElementById('gmailBarBadge');
-        if (gmailBarText) {
-            gmailBarText.textContent = isGmailLinked ? `Gmail: ${user.gmail.frequency === 'realtime' ? 'Instant Alerts' : user.gmail.frequency + ' Digest'}` : 'Gmail: Inactive';
-        }
-        if (gmailBarBadge) {
-            gmailBarBadge.className = isGmailLinked ? 'badge bg-primary-subtle text-primary' : 'badge bg-secondary-subtle text-secondary';
-            gmailBarBadge.textContent = isGmailLinked ? 'Active' : 'Configure';
+
+        if (gmailBarBtn) {
+            if (user.isGuest) {
+                gmailBarBtn.className = 'integration-item item-locked';
+                if (gmailBarText) gmailBarText.textContent = 'Gmail: Login Required';
+                if (gmailBarBadge) {
+                    gmailBarBadge.className = 'badge bg-secondary-subtle text-secondary';
+                    gmailBarBadge.innerHTML = '<i class="bi bi-lock-fill"></i> Locked';
+                }
+            } else {
+                gmailBarBtn.className = 'integration-item';
+                if (gmailBarText) gmailBarText.textContent = isGmailLinked ? `Gmail: ${user.gmail.frequency} Digest` : 'Gmail: Inactive';
+                if (gmailBarBadge) {
+                    gmailBarBadge.className = isGmailLinked ? 'badge bg-primary-subtle text-primary' : 'badge bg-secondary-subtle text-secondary';
+                    gmailBarBadge.textContent = isGmailLinked ? 'Active' : 'Configure';
+                }
+            }
         }
 
-        // Calculate Stats
+        // Calculations (starts at 0 when expenses are empty)
         const period = getActivePeriod();
         const monthName = getMonthName(period.month);
         const monthExpenses = getCurrentMonthExpenses();
@@ -986,7 +1057,9 @@
 
         const welcomeSubtitle = document.getElementById('welcomeSubtitle');
         if (welcomeSubtitle) {
-            welcomeSubtitle.textContent = `Welcome back, ${user.name.split(' ')[0]}! Here's your spending overview for ${monthName}.`;
+            welcomeSubtitle.textContent = user.isGuest
+                ? `Guest Mode: Track your spending manually below. Zero dummy expenses.`
+                : `Welcome back, ${user.name.split(' ')[0]}! Here's your spending overview for ${monthName}.`;
         }
 
         document.querySelectorAll('.currency-prefix').forEach(el => {
@@ -995,7 +1068,7 @@
     }
 
     // ==========================================
-    // 9. CATEGORIES BREAKDOWN RENDERING
+    // 10. CATEGORIES BREAKDOWN
     // ==========================================
 
     function renderCategoriesBreakdown() {
@@ -1003,13 +1076,21 @@
         if (!container) return;
 
         const user = getCurrentUser();
-        if (!user) {
-            container.innerHTML = '<div class="text-center py-4 text-muted">Sign in to view categories</div>';
-            return;
-        }
+        if (!user) return;
 
         const monthExpenses = getCurrentMonthExpenses();
         const totalSpent = monthExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+        if (monthExpenses.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-tags fs-2 text-muted d-block mb-2"></i>
+                    <p class="mb-1 fw-medium text-secondary">No spending recorded</p>
+                    <small class="text-muted">Your category distribution will appear here once you log expenses.</small>
+                </div>
+            `;
+            return;
+        }
 
         const categoryTotals = {};
         Object.keys(CATEGORIES).forEach(k => categoryTotals[k] = 0);
@@ -1073,27 +1154,46 @@
     }
 
     // ==========================================
-    // 10. CHART.JS VISUALIZATION
+    // 11. SPENDING CHART (WITH EMPTY STATE)
     // ==========================================
 
     function renderSpendingChart() {
-        const canvas = document.getElementById('spendingChart');
-        if (!canvas) return;
+        const container = document.getElementById('chartContainer');
+        if (!container) return;
 
-        if (typeof Chart === 'undefined') {
+        const user = getCurrentUser();
+        if (!user) return;
+
+        const monthExpenses = getCurrentMonthExpenses();
+
+        // If no expenses exist yet, display clean empty chart state
+        if (monthExpenses.length === 0) {
+            if (state.chartInstance) {
+                state.chartInstance.destroy();
+                state.chartInstance = null;
+            }
+            container.innerHTML = `
+                <div class="chart-empty-state">
+                    <i class="bi bi-bar-chart-line fs-1 text-primary-subtle mb-2"></i>
+                    <h6 class="fw-semibold text-secondary mb-1">No spending data recorded yet</h6>
+                    <p class="text-muted small mb-0">Add an expense or sync your UPI feed to view spending trends.</p>
+                </div>
+            `;
             return;
         }
 
-        const user = getCurrentUser();
-        const ctx = canvas.getContext('2d');
+        // Has data: ensure canvas exists
+        if (!document.getElementById('spendingChart')) {
+            container.innerHTML = '<canvas id="spendingChart"></canvas>';
+        }
 
+        const canvas = document.getElementById('spendingChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+
+        const ctx = canvas.getContext('2d');
         if (state.chartInstance) {
             state.chartInstance.destroy();
             state.chartInstance = null;
-        }
-
-        if (!user) {
-            return;
         }
 
         const period = state.chartPeriod || 'month';
@@ -1115,9 +1215,8 @@
                 const d = new Date(refDate);
                 d.setDate(d.getDate() - i);
                 const iso = d.toISOString().split('T')[0];
-                const dayLabel = `${days[d.getDay()]} (${d.getDate()})`;
                 last7Days.push(iso);
-                labels.push(dayLabel);
+                labels.push(`${days[d.getDay()]} (${d.getDate()})`);
                 dayTotals[iso] = 0;
             }
 
@@ -1189,8 +1288,6 @@
                         backgroundColor: '#1f2937',
                         padding: 12,
                         cornerRadius: 8,
-                        titleFont: { size: 13, weight: 'bold' },
-                        bodyFont: { size: 13 },
                         callbacks: {
                             label: function (context) {
                                 return ` Spent: ${formatCurrency(context.parsed.y)}`;
@@ -1220,12 +1317,12 @@
     }
 
     // ==========================================
-    // 11. EXPENSES TABLE CRUD & FILTERS
+    // 12. EXPENSES TABLE CRUD
     // ==========================================
 
     function getFilteredExpenses() {
         const user = getCurrentUser();
-        if (!user) return [];
+        if (!user || !user.expenses) return [];
 
         let list = [...user.expenses];
 
@@ -1258,23 +1355,14 @@
         if (!tbody) return;
 
         const user = getCurrentUser();
-        if (!user) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-5 text-muted">
-                        Please sign in to view and manage expenses.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
+        if (!user) return;
 
         const filteredList = getFilteredExpenses();
         const totalAmount = filteredList.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
 
         const countText = document.getElementById('tableCountText');
         if (countText) {
-            const totalCount = user.expenses.length;
+            const totalCount = user.expenses ? user.expenses.length : 0;
             countText.textContent = filteredList.length === totalCount
                 ? `Showing all ${totalCount} transactions`
                 : `Showing ${filteredList.length} of ${totalCount} transactions`;
@@ -1284,23 +1372,31 @@
         if (totalText) totalText.textContent = `Filtered Total: ${formatCurrency(totalAmount)}`;
 
         if (filteredList.length === 0) {
+            const totalCount = user.expenses ? user.expenses.length : 0;
             tbody.innerHTML = `
                 <tr>
                     <td colspan="6" class="text-center py-5">
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="bi bi-inbox"></i>
+                                <i class="bi bi-inbox text-muted"></i>
                             </div>
-                            <h5 class="fw-bold mb-1">No expenses found</h5>
+                            <h5 class="fw-bold mb-1">No expenses recorded yet</h5>
                             <p class="text-muted mb-3">
-                                ${user.expenses.length === 0
-                    ? "You haven't recorded any expenses yet. Click 'Add Expense' to get started!"
+                                ${totalCount === 0
+                    ? "Start tracking your spending by adding an expense or syncing UPI."
                     : "No transactions match your current search and filter criteria."}
                             </p>
-                            ${user.expenses.length === 0 ? `
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
-                                    <i class="bi bi-plus-lg me-1"></i> Add First Expense
-                                </button>
+                            ${totalCount === 0 ? `
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+                                        <i class="bi bi-plus-lg me-1"></i> Add First Expense
+                                    </button>
+                                    ${!user.isGuest ? `
+                                        <button class="btn btn-sm btn-outline-primary" id="emptyStateSyncUpiBtn">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Sync UPI Feed
+                                        </button>
+                                    ` : ''}
+                                </div>
                             ` : `
                                 <button class="btn btn-sm btn-outline-secondary" id="emptyStateResetBtn">
                                     <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
@@ -1313,6 +1409,9 @@
 
             const resetBtn = document.getElementById('emptyStateResetBtn');
             if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+
+            const emptySyncBtn = document.getElementById('emptyStateSyncUpiBtn');
+            if (emptySyncBtn) emptySyncBtn.addEventListener('click', syncUpiTransactions);
             return;
         }
 
@@ -1364,16 +1463,14 @@
         tbody.querySelectorAll('.edit-expense-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const id = btn.getAttribute('data-id');
-                openEditExpenseModal(id);
+                openEditExpenseModal(btn.getAttribute('data-id'));
             });
         });
 
         tbody.querySelectorAll('.delete-expense-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const id = btn.getAttribute('data-id');
-                openDeleteConfirmModal(id);
+                openDeleteConfirmModal(btn.getAttribute('data-id'));
             });
         });
     }
@@ -1405,7 +1502,7 @@
     }
 
     // ==========================================
-    // 12. ADD / EDIT EXPENSE MODAL LOGIC
+    // 13. ADD / EDIT EXPENSE MODAL
     // ==========================================
 
     function openAddExpenseModal() {
@@ -1460,10 +1557,7 @@
     function handleExpenseFormSubmit(e) {
         e.preventDefault();
         const user = getCurrentUser();
-        if (!user) {
-            showToast('Please sign in first.', 'warning');
-            return;
-        }
+        if (!user) return;
 
         const amountInput = document.getElementById('amount');
         const descInput = document.getElementById('description');
@@ -1547,8 +1641,7 @@
         const user = getCurrentUser();
         if (!user || !state.deletingId) return;
 
-        const id = state.deletingId;
-        user.expenses = user.expenses.filter(e => e.id !== id);
+        user.expenses = user.expenses.filter(e => e.id !== state.deletingId);
         state.deletingId = null;
 
         saveState();
@@ -1564,7 +1657,7 @@
     }
 
     // ==========================================
-    // 13. BUDGET SECTION & MANAGEMENT
+    // 14. BUDGET SECTION & MANAGEMENT
     // ==========================================
 
     function renderBudgets() {
@@ -1572,10 +1665,7 @@
         if (!container) return;
 
         const user = getCurrentUser();
-        if (!user) {
-            container.innerHTML = '<div class="col-12 text-center py-4 text-muted">Sign in to view budgets</div>';
-            return;
-        }
+        if (!user) return;
 
         const monthExpenses = getCurrentMonthExpenses();
         const spentByCategory = {};
@@ -1686,7 +1776,7 @@
     }
 
     // ==========================================
-    // 14. AI INSIGHTS & SMART ADVISOR
+    // 15. AI INSIGHTS & SMART ADVISOR
     // ==========================================
 
     function generateAiInsights() {
@@ -1694,16 +1784,51 @@
         if (!cardsContainer) return;
 
         const user = getCurrentUser();
-        if (!user) {
-            cardsContainer.innerHTML = '<div class="col-12 text-center py-4 text-muted">Sign in to view AI Insights</div>';
-            return;
-        }
+        if (!user) return;
 
         const period = getActivePeriod();
         const monthName = getMonthName(period.month);
         const monthExpenses = getCurrentMonthExpenses();
         const totalSpent = monthExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
         const monthlyBudget = Number(user.monthlyBudget) || 20000;
+
+        if (monthExpenses.length === 0) {
+            cardsContainer.innerHTML = `
+                <div class="col-md-6 col-lg-3">
+                    <div class="ai-stat-card">
+                        <span class="ai-badge bg-primary-subtle text-primary"><i class="bi bi-speedometer2"></i> Velocity</span>
+                        <h6 class="fw-bold mb-1">Month-End Forecast</h6>
+                        <p class="mb-2 text-dark fs-5 fw-bold">${formatCurrency(0)}</p>
+                        <p class="small text-muted mb-0">No spending logged yet. Your full budget of ${formatCurrency(monthlyBudget)} is intact.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="ai-stat-card">
+                        <span class="ai-badge bg-warning-subtle text-warning-emphasis"><i class="bi bi-pie-chart-fill"></i> Top Driver</span>
+                        <h6 class="fw-bold mb-1">No Top Category</h6>
+                        <p class="mb-2 text-dark fs-5 fw-bold">—</p>
+                        <p class="small text-muted mb-0">Log transactions or sync UPI to identify your top spending categories.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="ai-stat-card">
+                        <span class="ai-badge bg-success-subtle text-success"><i class="bi bi-shield-check"></i> Budget Health</span>
+                        <h6 class="fw-bold mb-1">100% Available</h6>
+                        <p class="mb-2 text-dark fs-5 fw-bold">${formatCurrency(monthlyBudget)} left</p>
+                        <p class="small text-muted mb-0">All category budgets are at 0% utilization. Excellent start!</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="ai-stat-card">
+                        <span class="ai-badge bg-info-subtle text-info-emphasis"><i class="bi bi-lightbulb-fill"></i> Smart Tip</span>
+                        <h6 class="fw-bold mb-1">Getting Started</h6>
+                        <p class="mb-2 text-dark fs-5 fw-bold">Ready to track</p>
+                        <p class="small text-muted mb-0">${user.isGuest ? 'Log manual transactions using the Add Expense button.' : 'Link your UPI account to automatically import verified bank transactions!'}</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
 
         const daysInMonth = new Date(period.year, period.month, 0).getDate();
         let daysElapsed = 1;
@@ -1756,9 +1881,7 @@
         cardsContainer.innerHTML = `
             <div class="col-md-6 col-lg-3">
                 <div class="ai-stat-card">
-                    <span class="ai-badge bg-primary-subtle text-primary">
-                        <i class="bi bi-speedometer2"></i> Velocity
-                    </span>
+                    <span class="ai-badge bg-primary-subtle text-primary"><i class="bi bi-speedometer2"></i> Velocity</span>
                     <h6 class="fw-bold mb-1">Month-End Forecast</h6>
                     <p class="mb-2 text-dark fs-5 fw-bold">${formatCurrency(projectedTotal)}</p>
                     <p class="small text-muted mb-0">
@@ -1772,9 +1895,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="ai-stat-card">
-                    <span class="ai-badge bg-warning-subtle text-warning-emphasis">
-                        <i class="bi bi-pie-chart-fill"></i> Top Driver
-                    </span>
+                    <span class="ai-badge bg-warning-subtle text-warning-emphasis"><i class="bi bi-pie-chart-fill"></i> Top Driver</span>
                     <h6 class="fw-bold mb-1">${topCatMeta.icon} ${topCatMeta.name} (${topCatPercentage}%)</h6>
                     <p class="mb-2 text-dark fs-5 fw-bold">${formatCurrency(topCategoryAmount)}</p>
                     <p class="small text-muted mb-0">
@@ -1785,9 +1906,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="ai-stat-card">
-                    <span class="ai-badge ${highestUtilPercent >= 90 ? 'bg-danger-subtle text-danger' : 'bg-info-subtle text-info-emphasis'}">
-                        <i class="bi bi-shield-check"></i> Budget Health
-                    </span>
+                    <span class="ai-badge ${highestUtilPercent >= 90 ? 'bg-danger-subtle text-danger' : 'bg-info-subtle text-info-emphasis'}"><i class="bi bi-shield-check"></i> Budget Health</span>
                     <h6 class="fw-bold mb-1">${highestUtilMeta.icon} ${highestUtilMeta.name} at ${highestUtilPercent}%</h6>
                     <p class="mb-2 text-dark fs-5 fw-bold">
                         ${highestUtilPercent >= 100 ? 'Over limit!' : formatCurrency(Math.max(0, (user.budgets[highestUtilCategory] || 3000) - categoryTotals[highestUtilCategory])) + ' left'}
@@ -1800,9 +1919,7 @@
 
             <div class="col-md-6 col-lg-3">
                 <div class="ai-stat-card">
-                    <span class="ai-badge bg-success-subtle text-success">
-                        <i class="bi bi-lightbulb-fill"></i> Smart Tip
-                    </span>
+                    <span class="ai-badge bg-success-subtle text-success"><i class="bi bi-lightbulb-fill"></i> Smart Tip</span>
                     <h6 class="fw-bold mb-1">UPI & Micro Spends</h6>
                     <p class="mb-2 text-dark fs-5 fw-bold">${upiPercentage}% via UPI</p>
                     <p class="small text-muted mb-0">
@@ -1833,15 +1950,20 @@
 
         setTimeout(() => {
             const user = getCurrentUser();
-            if (!user) {
-                contentBox.innerHTML = '<p class="text-danger">Please sign in to ask questions about your finances.</p>';
-                return;
-            }
+            if (!user) return;
 
             const period = getActivePeriod();
             const monthExpenses = getCurrentMonthExpenses();
             const totalSpent = monthExpenses.reduce((s, i) => s + (Number(i.amount) || 0), 0);
             const monthlyBudget = Number(user.monthlyBudget) || 20000;
+
+            if (monthExpenses.length === 0) {
+                contentBox.innerHTML = `
+                    <p class="mb-1"><strong>ExpenseAI Advisor Notice:</strong></p>
+                    <p class="mb-0 text-muted">You haven't recorded any expenses yet! Once you add transactions manually or sync verified UPI statement records, I will generate tailored analysis, top drivers, and savings plans.</p>
+                `;
+                return;
+            }
 
             const categoryTotals = {};
             Object.keys(CATEGORIES).forEach(k => categoryTotals[k] = 0);
@@ -1858,79 +1980,48 @@
                 answerHtml = `
                     <p class="mb-2"><strong>Smart Savings Plan for ${getMonthName(period.month)}:</strong></p>
                     <ul class="mb-2 ps-3">
-                        <li><strong>Reduce ${CATEGORIES[highest].name} by 25%:</strong> You have spent <strong>${formatCurrency(categoryTotals[highest])}</strong> on ${CATEGORIES[highest].name}. Preparing meals/cutting back slightly here frees up <strong>${formatCurrency(potentialSavings)}</strong> immediately.</li>
-                        <li><strong>Audit UPI Micro-Transactions:</strong> Small transactions under ₹300 represent frequent impulse purchases. Consolidating these saves approximately <strong>${formatCurrency(Math.round(totalSpent * 0.08))}</strong> monthly.</li>
-                        <li><strong>Target Buffer:</strong> If you maintain your current remaining balance of <strong>${formatCurrency(Math.max(0, monthlyBudget - totalSpent))}</strong>, you will finish the month comfortably in the green!</li>
+                        <li><strong>Reduce ${CATEGORIES[highest].name} by 25%:</strong> You have spent <strong>${formatCurrency(categoryTotals[highest])}</strong> on ${CATEGORIES[highest].name}. Trimming here frees up <strong>${formatCurrency(potentialSavings)}</strong>.</li>
+                        <li><strong>Audit UPI Micro-Transactions:</strong> Frequent UPI payments under ₹300 represent spontaneous purchases. Consolidating these saves approximately <strong>${formatCurrency(Math.round(totalSpent * 0.08))}</strong> monthly.</li>
+                        <li><strong>Target Buffer:</strong> Remaining budget is <strong>${formatCurrency(Math.max(0, monthlyBudget - totalSpent))}</strong>.</li>
                     </ul>
                 `;
-            } else if (query.includes('food') || query.includes('lunch') || query.includes('dinner')) {
+            } else if (query.includes('food')) {
                 const foodSpent = categoryTotals['food'] || 0;
                 const foodLimit = user.budgets['food'] || 5000;
-                const foodItems = monthExpenses.filter(e => e.category === 'food');
                 answerHtml = `
                     <p class="mb-2"><strong>🍔 Food & Dining Breakdown:</strong></p>
-                    <p class="mb-2">You have logged <strong>${foodItems.length} food transactions</strong> totaling <strong>${formatCurrency(foodSpent)}</strong> out of your <strong>${formatCurrency(foodLimit)}</strong> budget (${Math.round((foodSpent / foodLimit) * 100)}% utilized).</p>
-                    <p class="mb-0 text-muted small">Top food expense: ${foodItems.length > 0 ? `<strong>${foodItems[0].description}</strong> (${formatCurrency(foodItems[0].amount)})` : 'None'}.</p>
+                    <p class="mb-0">You have logged <strong>${formatCurrency(foodSpent)}</strong> out of your <strong>${formatCurrency(foodLimit)}</strong> budget (${Math.round((foodSpent / foodLimit) * 100)}% utilized).</p>
                 `;
-            } else if (query.includes('top') || query.includes('category') || query.includes('top-expense')) {
-                const sortedCats = Object.keys(categoryTotals).sort((a, b) => categoryTotals[b] - categoryTotals[a]);
-                const topCat = sortedCats[0];
-                const topMeta = CATEGORIES[topCat];
-                answerHtml = `
-                    <p class="mb-2"><strong>📊 Top Spending Category:</strong></p>
-                    <p class="mb-2">Your highest outflow is in <strong>${topMeta.icon} ${topMeta.name}</strong> with <strong>${formatCurrency(categoryTotals[topCat])}</strong> (${Math.round((categoryTotals[topCat] / Math.max(1, totalSpent)) * 100)}% of all spending).</p>
-                    <div class="p-2 bg-light rounded small">
-                        <strong>Runner-up categories:</strong> ${CATEGORIES[sortedCats[1]].name} (${formatCurrency(categoryTotals[sortedCats[1]])}), ${CATEGORIES[sortedCats[2]].name} (${formatCurrency(categoryTotals[sortedCats[2]])}).
-                    </div>
-                `;
-            } else if (query.includes('risk') || query.includes('budget') || query.includes('budget-risk') || query.includes('over')) {
+            } else if (query.includes('risk') || query.includes('budget') || query.includes('budget-risk')) {
                 const overBudgetCats = Object.keys(CATEGORIES).filter(k => {
                     const limit = user.budgets[k] || CATEGORIES[k].defaultBudget;
-                    return categoryTotals[k] >= limit;
-                });
-                const nearBudgetCats = Object.keys(CATEGORIES).filter(k => {
-                    const limit = user.budgets[k] || CATEGORIES[k].defaultBudget;
-                    return categoryTotals[k] >= (limit * 0.75) && categoryTotals[k] < limit;
+                    return categoryTotals[k] >= limit && categoryTotals[k] > 0;
                 });
 
                 if (overBudgetCats.length > 0) {
                     answerHtml = `
                         <p class="text-danger fw-bold mb-1">⚠️ Budget Overrun Detected:</p>
-                        <p class="mb-2">You have exceeded your limit in <strong>${overBudgetCats.map(c => CATEGORIES[c].name).join(', ')}</strong>.</p>
-                        <p class="small text-muted mb-0">Recommendation: Freeze optional purchases in these categories for the next 7 days.</p>
-                    `;
-                } else if (nearBudgetCats.length > 0) {
-                    answerHtml = `
-                        <p class="text-warning-emphasis fw-bold mb-1">⚡ Budget Caution Alert:</p>
-                        <p class="mb-2"><strong>${nearBudgetCats.map(c => CATEGORIES[c].name).join(', ')}</strong> is approaching its threshold (>75% allocated).</p>
-                        <p class="small text-muted mb-0">Total remaining across all budgets is <strong>${formatCurrency(Math.max(0, monthlyBudget - totalSpent))}</strong>.</p>
+                        <p class="mb-0">You have exceeded limits in <strong>${overBudgetCats.map(c => CATEGORIES[c].name).join(', ')}</strong>.</p>
                     `;
                 } else {
                     answerHtml = `
                         <p class="text-success fw-bold mb-1">✅ Excellent Financial Health!</p>
-                        <p class="mb-1">All of your spending categories are currently well within their safety margins.</p>
-                        <p class="small text-muted mb-0">Total remaining budget for ${getMonthName(period.month)}: <strong>${formatCurrency(monthlyBudget - totalSpent)}</strong>.</p>
+                        <p class="mb-0">All spending categories are currently within safety margins. Remaining: <strong>${formatCurrency(monthlyBudget - totalSpent)}</strong>.</p>
                     `;
                 }
             } else {
                 answerHtml = `
                     <p class="mb-2"><strong>Analysis for "${escapeHtml(questionText)}":</strong></p>
-                    <p class="mb-2">In ${getMonthName(period.month)}, your total outflow is <strong>${formatCurrency(totalSpent)}</strong> across <strong>${monthExpenses.length} transactions</strong>.</p>
-                    <div class="row g-2 small text-muted">
-                        <div class="col-6">🍔 Food: <strong>${formatCurrency(categoryTotals.food)}</strong></div>
-                        <div class="col-6">🚗 Transport: <strong>${formatCurrency(categoryTotals.transport)}</strong></div>
-                        <div class="col-6">🛍️ Shopping: <strong>${formatCurrency(categoryTotals.shopping)}</strong></div>
-                        <div class="col-6">🎮 Entertainment: <strong>${formatCurrency(categoryTotals.entertainment)}</strong></div>
-                    </div>
+                    <p class="mb-0">Total outflow is <strong>${formatCurrency(totalSpent)}</strong> across <strong>${monthExpenses.length} transactions</strong>.</p>
                 `;
             }
 
             contentBox.innerHTML = answerHtml;
-        }, 450);
+        }, 400);
     }
 
     // ==========================================
-    // 15. PROFILE, SETTINGS & CSV EXPORT
+    // 16. PROFILE, SETTINGS & CSV EXPORT
     // ==========================================
 
     function openProfileModal() {
@@ -1942,8 +2033,11 @@
         const currSelect = document.getElementById('currencySelect');
 
         if (nameInput) nameInput.value = user.name;
-        if (emailInput) emailInput.value = user.email;
+        if (emailInput) emailInput.value = user.isGuest ? 'Guest User (Not Logged In)' : user.email;
         if (currSelect) currSelect.value = user.currency;
+
+        const m = document.getElementById('profileModal');
+        if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
     }
 
     function handleSaveProfile(e) {
@@ -1966,13 +2060,13 @@
             if (modal) modal.hide();
         }
 
-        showToast('Profile settings saved!', 'success');
+        showToast('Settings saved!', 'success');
     }
 
     function exportExpensesAsCsv() {
         const user = getCurrentUser();
-        if (!user || user.expenses.length === 0) {
-            showToast('No expenses to export!', 'warning');
+        if (!user || !user.expenses || user.expenses.length === 0) {
+            showToast('No expenses recorded to export!', 'warning');
             return;
         }
 
@@ -1995,43 +2089,14 @@
         link.click();
         document.body.removeChild(link);
 
-        showToast('Expenses exported as CSV file!', 'success');
-    }
-
-    function resetToSampleDemoData() {
-        const user = getCurrentUser();
-        if (!user) return;
-
-        if (!confirm('Are you sure you want to restore the sample demo transactions? Your custom changes will be replaced.')) {
-            return;
-        }
-
-        user.expenses = [...DEMO_EXPENSES];
-        user.budgets = {
-            food: 5000,
-            transport: 3000,
-            shopping: 4000,
-            entertainment: 2500,
-            other: 2000
-        };
-        user.monthlyBudget = 20000;
-        saveState();
-        refreshAllViews();
-
-        const modalEl = document.getElementById('profileModal');
-        if (modalEl && window.bootstrap) {
-            const modal = window.bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-        }
-
-        showToast('Restored sample demo data successfully!', 'info');
+        showToast('Expenses exported as CSV!', 'success');
     }
 
     function clearAllExpenses() {
         const user = getCurrentUser();
         if (!user) return;
 
-        if (!confirm('⚠️ WARNING: This will permanently erase ALL expenses for your account! Continue?')) {
+        if (!confirm('Are you sure you want to clear all recorded expenses?')) {
             return;
         }
         user.expenses = [];
@@ -2044,34 +2109,45 @@
             if (modal) modal.hide();
         }
 
-        showToast('All transactions cleared.', 'warning');
+        showToast('All expenses cleared.', 'info');
     }
 
     // ==========================================
-    // 16. GLOBAL REFRESH & EVENT LISTENERS
+    // 17. GLOBAL REFRESH & EVENT BINDINGS
     // ==========================================
 
     function refreshAllViews() {
+        updateAuthGatewayVisibility();
+
+        const user = getCurrentUser();
+        if (!user) return;
+
         renderDashboardStats();
         renderCategoriesBreakdown();
         renderSpendingChart();
         renderExpensesTable();
         renderBudgets();
         generateAiInsights();
-        renderUpiModal();
-        renderGmailModal();
+        renderUpiModalContent();
+        renderGmailModalContent();
     }
 
     function setupEventListeners() {
-        // Auth Forms & Actions
-        const signInForm = document.getElementById('signInForm');
-        if (signInForm) signInForm.addEventListener('submit', handleSignIn);
+        // Auth Gateway Forms
+        const googleFastLoginBtn = document.getElementById('googleFastLoginBtn');
+        if (googleFastLoginBtn) googleFastLoginBtn.addEventListener('click', handleGoogleFastLogin);
 
-        const signUpForm = document.getElementById('signUpForm');
-        if (signUpForm) signUpForm.addEventListener('submit', handleSignUp);
+        const gtSignInForm = document.getElementById('gatewaySignInForm');
+        if (gtSignInForm) gtSignInForm.addEventListener('submit', handleGatewaySignIn);
 
-        const demoBtn = document.getElementById('quickDemoLoginBtn');
-        if (demoBtn) demoBtn.addEventListener('click', handleDemoLogin);
+        const gtSignUpForm = document.getElementById('gatewaySignUpForm');
+        if (gtSignUpForm) gtSignUpForm.addEventListener('submit', handleGatewaySignUp);
+
+        const continueAsGuestBtn = document.getElementById('continueAsGuestBtn');
+        if (continueAsGuestBtn) continueAsGuestBtn.addEventListener('click', handleContinueAsGuest);
+
+        const guestUpgradeBtn = document.getElementById('guestUpgradeToGmailBtn');
+        if (guestUpgradeBtn) guestUpgradeBtn.addEventListener('click', handleUpgradeFromGuestToGmail);
 
         const signOutBtn = document.getElementById('menuSignOutBtn');
         if (signOutBtn) signOutBtn.addEventListener('click', (e) => {
@@ -2079,7 +2155,7 @@
             handleSignOut();
         });
 
-        // UPI Forms & Actions
+        // UPI Forms & Actions (Protected)
         const upiForm = document.getElementById('upiForm');
         if (upiForm) upiForm.addEventListener('submit', handleSaveUpi);
 
@@ -2092,27 +2168,29 @@
         const syncUpiTransactionsBtn = document.getElementById('syncUpiTransactionsBtn');
         if (syncUpiTransactionsBtn) syncUpiTransactionsBtn.addEventListener('click', syncUpiTransactions);
 
+        const upiBarBtn = document.getElementById('upiBarBtn');
+        if (upiBarBtn) upiBarBtn.addEventListener('click', openUpiModal);
+
         const menuLinkUpiBtn = document.getElementById('menuLinkUpiBtn');
         if (menuLinkUpiBtn) {
             menuLinkUpiBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                renderUpiModal();
-                const m = document.getElementById('upiModal');
-                if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
+                openUpiModal();
             });
         }
 
-        // Gmail Forms & Actions
+        // Gmail Forms & Actions (Protected)
         const gmailForm = document.getElementById('gmailSettingsForm');
         if (gmailForm) gmailForm.addEventListener('submit', handleSaveGmailSettings);
+
+        const gmailBarBtn = document.getElementById('gmailBarBtn');
+        if (gmailBarBtn) gmailBarBtn.addEventListener('click', openGmailModal);
 
         const menuLinkGmailBtn = document.getElementById('menuLinkGmailBtn');
         if (menuLinkGmailBtn) {
             menuLinkGmailBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                renderGmailModal();
-                const m = document.getElementById('gmailModal');
-                if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
+                openGmailModal();
             });
         }
 
@@ -2157,8 +2235,6 @@
             menuProfileBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 openProfileModal();
-                const m = document.getElementById('profileModal');
-                if (m && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(m).show();
             });
         }
 
@@ -2200,16 +2276,12 @@
             });
         }
 
-        // CSV export
+        // CSV export & clear buttons
         const exportBtn = document.getElementById('exportCsvBtn');
         if (exportBtn) exportBtn.addEventListener('click', exportExpensesAsCsv);
 
         const profileExportBtn = document.getElementById('profileExportCsvBtn');
         if (profileExportBtn) profileExportBtn.addEventListener('click', exportExpensesAsCsv);
-
-        // Demo data & clear buttons
-        const resetDemoBtn = document.getElementById('resetDemoDataBtn');
-        if (resetDemoBtn) resetDemoBtn.addEventListener('click', resetToSampleDemoData);
 
         const clearBtn = document.getElementById('clearAllDataBtn');
         if (clearBtn) clearBtn.addEventListener('click', clearAllExpenses);
@@ -2256,7 +2328,7 @@
             });
         }
 
-        // ScrollSpy
+        // Navbar ScrollSpy
         setupNavbarScrollSpy();
     }
 
@@ -2296,14 +2368,20 @@
     }
 
     // ==========================================
-    // 17. INITIALIZATION
+    // 18. INITIALIZATION
     // ==========================================
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function initApp() {
         loadState();
         setupEventListeners();
         refreshAllViews();
-        console.log('ExpenseAI initialized with Authentication, UPI Sync, and Gmail Alerts.');
-    });
+        console.log('ExpenseAI initialized with Login Wall, Guest Mode restrictions, and Zero Dummy Expenses.');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+        initApp();
+    }
 
 })();
